@@ -44,7 +44,8 @@ main{max-width:900px;margin:0 auto;padding:16px 16px 56px}
 .live{position:absolute;top:8px;right:8px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
 .live:empty{display:none}
 .foot{margin-top:26px;font-size:13px;color:var(--muted);line-height:1.7}
-.foot code{background:var(--surface2);padding:1px 5px;border-radius:6px}
+code{background:var(--surface2);padding:1px 6px;border-radius:6px;font-size:14px;white-space:nowrap}
+#pauseAllBtn{flex:none;white-space:nowrap}
 
 /* 共用 */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
@@ -202,11 +203,13 @@ body.flash::after{content:"";position:fixed;inset:0;background:var(--accent);poi
 <header class="topbar">
   <a class="back" id="backBtn" href="#" hidden>‹ 全部</a>
   <h1 id="pageTitle">YSTimer 計時器</h1>
+  <button class="btn sm" id="pauseAllBtn" title="暫停所有計時器" hidden>⏸ 全部暫停</button>
   <button class="iconbtn" id="soundBtn" title="音效開關">🔔</button>
+  <a class="iconbtn" id="setBtn" href="#settings" title="設定">⚙️</a>
   <button class="iconbtn" id="fsBtn" title="全螢幕（F）">⛶</button>
   <a class="iconbtn" id="newTabBtn" target="_blank" rel="noopener" title="在新分頁開啟" hidden>↗</a>
 </header>
-<main id="app"><section id="v-home" class="view"></section></main>
+<main id="app"><section id="v-home" class="view"></section><section id="v-settings" class="view" hidden></section></main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -297,6 +300,7 @@ const gym = {
     <div class="restgrid">${REST.map(v => `<button class="restbtn" data-act="rest" data-v="${v}">${v}<small>秒</small></button>`).join('')}</div></div>
   <div class="row" data-k="pRest"><button class="btn" data-act="add">+15 秒</button><button class="btn primary xl" data-act="skip">提早開始下一組</button></div>
   <div class="row" data-k="pDone"><button class="btn primary xl" data-act="new">再練一次</button></div>
+  <div class="row" data-k="pPause"><button class="btn primary xl" data-act="resume">繼續</button></div>
   <div class="row" data-k="pEnd"><button class="btn sm danger" data-act="end">結束訓練</button></div>`,
   init(el) {
     this.el = el; this.k = keys(el);
@@ -307,21 +311,23 @@ const gym = {
     onAct(el, (a, b) => this.act(a, b));
   },
   save() { store.set('gym', { s: this.s, total: this.total, ph: this.ph }); },
-  running() { return this.s.phase === 'work' || this.s.phase === 'rest'; },
-  toggle() { const p = this.s.phase; if (p === 'idle') this.act('start'); else if (p === 'work') this.act('rest', { dataset: { v: this.s.last } }); else if (p === 'rest') this.act('skip'); },
+  running() { return (this.s.phase === 'work' || this.s.phase === 'rest') && !this.s.paused; },
+  pauseAll() { if (this.running()) { this.s.paused = true; this.total.pause(); this.ph.pause(); this.save(); } },
+  toggle() { const p = this.s.phase; if (this.s.paused) this.act('resume'); else if (p === 'idle') this.act('start'); else if (p === 'work') this.act('rest', { dataset: { v: this.s.last } }); else if (p === 'rest') this.act('skip'); },
   async act(a, b) {
     const s = this.s;
     if (a === 'start') { s.sets = 0; this.total.reset(); this.total.play(); this.toWork(); Sound.beep(1, 880); }
     else if (a === 'rest') { s.sets++; s.last = +b.dataset.v; s.restDur = s.last * 1000; s.phase = 'rest'; this.ph.reset(); this.ph.play(); this.lastSec = null; Sound.beep(1, 523, 0.18); }
     else if (a === 'add') s.restDur += 15000;
+    else if (a === 'resume') { s.paused = false; this.total.play(); this.ph.play(); }
     else if (a === 'skip') { this.toWork(); Sound.beep(2, 988, 0.1); }
     else if (a === 'end') { if (!await ask('結束這次訓練？')) return; s.phase = 'done'; this.total.pause(); this.ph.pause(); Sound.bell(2); }
-    else if (a === 'new') { s.phase = 'idle'; this.total.reset(); this.ph.reset(); }
+    else if (a === 'new') { s.phase = 'idle'; s.paused = false; this.total.reset(); this.ph.reset(); }
     this.save(); this.render();
   },
-  toWork() { this.s.phase = 'work'; this.ph.reset(); this.ph.play(); },
+  toWork() { this.s.phase = 'work'; this.s.paused = false; this.ph.reset(); this.ph.play(); this.total.play(); },
   logic() {
-    if (this.s.phase !== 'rest') return;
+    if (this.s.phase !== 'rest' || this.s.paused) return;
     const r = this.s.restDur - this.ph.ms, sec = Math.ceil(r / 1000);
     if (r > 0 && sec <= 3 && sec !== this.lastSec) { this.lastSec = sec; Sound.beep(1, 660, 0.09); }
     if (r <= 0) { this.toWork(); this.save(); alarm(`休息結束，開始第 ${this.s.sets + 1} 組！`, 0); Sound.beep(1, 1046, 0.5); }
@@ -335,9 +341,11 @@ const gym = {
     else if (p === 'work') { ph = `第 ${s.sets + 1} 組・訓練中`; big = up(this.ph.ms); sub = `總時間 ${up(this.total.ms)}`; }
     else if (p === 'rest') { const r = s.restDur - this.ph.ms; ph = '休息'; big = down(r); bar = this.ph.ms / s.restDur; sub = `已完成 ${s.sets} 組・總時間 ${up(this.total.ms)}`; }
     else { ph = '訓練完成 💪'; big = up(this.total.ms); sub = `共完成 ${s.sets} 組`; }
+    if (s.paused) ph += '（暫停）';
     T(k.phase, ph); T(k.big, big); T(k.sub, sub);
     k.barbox.hidden = bar === null; if (bar !== null) k.bar.style.width = Math.min(100, bar * 100) + '%';
-    k.pIdle.hidden = p !== 'idle'; k.pWork.hidden = p !== 'work'; k.pRest.hidden = p !== 'rest'; k.pDone.hidden = p !== 'done'; k.pEnd.hidden = !(p === 'work' || p === 'rest');
+    k.pPause.hidden = !s.paused;
+    k.pIdle.hidden = p !== 'idle'; k.pWork.hidden = p !== 'work' || s.paused; k.pRest.hidden = p !== 'rest' || s.paused; k.pDone.hidden = p !== 'done'; k.pEnd.hidden = !(p === 'work' || p === 'rest');
     $$('.restbtn', this.el).forEach(x => x.classList.toggle('last', +x.dataset.v === s.last));
   }
 };
@@ -752,6 +760,7 @@ const kitchen = {
   },
   save() { store.set('kitchen', this.list); },
   running() { return this.list.some(x => x.clk.on); },
+  pauseAll() { this.list.forEach(x => x.clk.pause()); this.save(); this.render(); },
   act(a, b) {
     if (a === 'add' || a === 'custom') {
       const sec = a === 'add' ? +b.dataset.v : readMMSS(this.el, 'kc'); if (!sec) return;
@@ -801,6 +810,7 @@ const chess = {
   reset() { this.rem = [this.cfg[0] * 60000, this.cfg[0] * 60000]; this.a = -1; this.out = -1; this.turn.reset(); this.moves = [0, 0]; },
   cur(i) { return i === this.a ? this.rem[i] - this.turn.ms : this.rem[i]; },
   running() { return this.turn.on; },
+  pauseAll() { this.turn.pause(); },
   toggle() { if (this.a >= 0) this.act('tap', { dataset: { v: this.a } }); },
   act(a, b) {
     if (a === 'tap') {
@@ -851,12 +861,13 @@ let current = 'home';
 function setup() {
   $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。計時器會在背景繼續跑，卡片右上角顯示進行中的時間。</p></div>` +
     CATS.map(c => `<div class="cat">${c}</div><div class="grid">${MODULES.filter(m => m.cat === c).map(m =>
-      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>`).join('') +
-    `<div class="foot">💡 網址後面加 ${MODULES.map(m => `<code>#${m.id}</code>`).join(' ')} 可直接開啟指定計時器。<br>⌨️ 空白鍵：開始／暫停　F：全螢幕</div>`;
+      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>`).join('');
+  buildSettings();
   MODULES.forEach(m => { const sec = document.createElement('section'); sec.className = 'view'; sec.id = 'v-' + m.id; sec.hidden = true; sec.innerHTML = m.html; $('#app').appendChild(sec); m.init(sec); });
   window.addEventListener('hashchange', route); route();
-  const sb = $('#soundBtn'), paint = () => { sb.textContent = Sound.on ? '🔔' : '🔕'; };
-  paint(); sb.onclick = () => { Sound.on = !Sound.on; store.set('sound', Sound.on); paint(); toast(Sound.on ? '音效開啟' : '音效關閉'); };
+  paintSound();
+  $('#soundBtn').onclick = () => setSound(!Sound.on);
+  $('#pauseAllBtn').onclick = pauseAll;
   $('#fsBtn').onclick = toggleFs;
   document.addEventListener('fullscreenchange', () => document.documentElement.classList.toggle('fs', !!document.fullscreenElement));
   let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
@@ -870,6 +881,37 @@ function setup() {
   });
   const frame = () => { loop(); requestAnimationFrame(frame); }; requestAnimationFrame(frame); setInterval(loop, 500);
 }
+function paintSound() { $('#soundBtn').textContent = Sound.on ? '🔔' : '🔕'; const c = $('#setSound'); if (c) c.checked = Sound.on; }
+function setSound(on) { Sound.on = on; store.set('sound', on); paintSound(); toast(on ? '音效開啟' : '音效關閉'); if (on) Sound.beep(1); }
+const activeTimers = () => MODULES.filter(m => m.id !== 'exam' && m.running());
+function pauseAll() {
+  const list = activeTimers();
+  list.forEach(m => { if (m.pauseAll) m.pauseAll(); else if (m.clock) m.clock.pause(); });
+  toast(list.length ? `已暫停：${list.map(m => m.name).join('、')}` : '目前沒有計時器在跑');
+}
+function buildSettings() {
+  const base = location.href.split('#')[0];
+  $('#v-settings').innerHTML = `
+  <div class="card"><div class="card-head"><h3>全部暫停</h3><button class="btn primary" id="setPause">⏸ 全部暫停</button></div>
+    <p class="hint" style="text-align:left;margin:0">一次暫停所有正在跑的計時器（考試時鐘依實際時間，不受影響）。有計時器在跑時，上方也會出現這顆按鈕。</p></div>
+  <div class="card"><div class="card-head" style="margin:0"><h3>音效</h3><label class="mmss" style="font-size:15px;color:var(--text);cursor:pointer"><input type="checkbox" id="setSound" style="width:22px;height:22px;min-height:0;accent-color:var(--accent)"> 時間到響鈴／嗶聲</label></div></div>
+  <div class="card"><h3 style="margin-bottom:6px">直接開啟指定計時器</h3>
+    <p class="hint" style="text-align:left;margin:0 0 8px">網址後面加上代碼，就會直接打開那個計時器，適合在協作平台為每個計時器各放一個按鈕。</p>
+    <table class="log">${MODULES.map(m => `<tr><td>${m.icon} ${m.name}</td><td><code>#${m.id}</code></td><td class="num"><button class="btn sm" data-copy="${esc(base + '#' + m.id)}">複製網址</button></td></tr>`).join('')}</table></div>
+  <div class="card"><h3 style="margin-bottom:6px">快捷鍵</h3>
+    <table class="log"><tr><td><code>空白鍵</code></td><td>開始／暫停（重訓：開始／休息／下一組）</td></tr><tr><td><code>F</code></td><td>全螢幕（投影時好用）</td></tr><tr><td><code>← →</code></td><td>試教計時器切換步驟</td></tr></table></div>
+  <div class="card"><div class="card-head" style="margin:0"><h3>資料</h3><button class="btn sm danger" id="setClear">清除所有設定與紀錄</button></div>
+    <p class="hint" style="text-align:left;margin:6px 0 0">所有設定只存在這台裝置的瀏覽器，不會上傳。</p></div>`;
+  $('#setPause').onclick = pauseAll;
+  $('#setSound').onchange = e => setSound(e.target.checked);
+  $('#setClear').onclick = async () => {
+    if (!await ask('清除所有計時器的設定與紀錄？', '清除')) return;
+    try { Object.keys(localStorage).filter(k => k.startsWith('ystimer2:')).forEach(k => localStorage.removeItem(k)); } catch (e) {}
+    location.hash = ''; location.reload();
+  };
+  $('#v-settings').addEventListener('click', e => { const b = e.target.closest('[data-copy]'); if (!b) return; const t = b.dataset.copy;
+    (navigator.clipboard && window.isSecureContext ? navigator.clipboard.writeText(t) : Promise.reject()).then(() => toast('已複製網址'), () => { const ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('已複製網址'); } catch (x) { toast(t); } ta.remove(); }); });
+}
 function toggleFs() {
   const d = document, el = d.documentElement;
   if (d.fullscreenElement) return d.exitFullscreen();
@@ -877,9 +919,11 @@ function toggleFs() {
   if (!req) return fail(); try { const p = req.call(el); if (p && p.catch) p.catch(fail); } catch (e) { fail(); }
 }
 function route() {
-  const m = MODULES.find(x => x.id === location.hash.slice(1)); current = m ? m.id : 'home';
+  const id = location.hash.slice(1), m = MODULES.find(x => x.id === id); current = m ? m.id : id === 'settings' ? 'settings' : 'home';
   $$('.view').forEach(v => v.hidden = v.id !== 'v-' + current);
-  $('#backBtn').hidden = !m; $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : 'YSTimer 計時器'; $('#newTabBtn').href = location.href;
+  $('#backBtn').hidden = current === 'home'; $('#setBtn').hidden = current === 'settings';
+  $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : current === 'settings' ? '⚙️ 設定' : 'YSTimer 計時器';
+  paintSound(); $('#newTabBtn').href = location.href;
   if (m) m.render(); window.scrollTo(0, 0);
 }
 let lastTitle = '';
@@ -887,7 +931,8 @@ function loop() {
   for (const m of MODULES) { try { m.logic(); } catch (e) { console.error(m.id, e); } }
   const m = MODULES.find(x => x.id === current);
   if (m) { try { m.render(); } catch (e) { console.error(m.id, e); } }
-  else MODULES.forEach(x => T($(`[data-live="${x.id}"]`), x.running() && x.id !== 'exam' ? (x.title() || '進行中') : ''));
+  else if (current === 'home') MODULES.forEach(x => T($(`[data-live="${x.id}"]`), x.running() && x.id !== 'exam' ? (x.title() || '進行中') : ''));
+  const pb = $('#pauseAllBtn'), any = activeTimers().length > 0; if (pb.hidden === any) pb.hidden = !any;
   const t = m && m.title() ? `${m.title()} · ${m.name}` : (m ? m.name : 'YSTimer 計時器');
   if (t !== lastTitle) document.title = lastTitle = t;
   Wake.want(MODULES.some(x => x.running()));
