@@ -17,15 +17,3 @@
 
 快捷鍵：空白鍵 開始／暫停、F 全螢幕、試教時 ← → 切換步驟。
 設定、方案與紀錄存在使用者瀏覽器的 localStorage，不會上傳。
-
-## 部署到 GitHub Pages
-
-1. 在 GitHub 新增 repository（例如 `YuSiangTimer`，設為 Public）。
-2. 上傳 `index.html` 與本 `README.md` 到 main 分支根目錄。
-3. Settings → Pages → Source 選「Deploy from a branch」，Branch 選 `main` / `(root)`，儲存。
-4. 約 1 分鐘後網址為 `https://<帳號>.github.io/YuSiangTimer/`。
-
-## 嵌入 Google 協作平台
-
-插入 → 嵌入 → 「依網址」貼上網址（可加 `#teach` 等後綴直接開啟指定計時器），再把嵌入框拉高。
-嵌入框內瀏覽器可能不允許全螢幕，頁面右上角會出現「↗」可改在新分頁開啟（投影時建議用新分頁）。
