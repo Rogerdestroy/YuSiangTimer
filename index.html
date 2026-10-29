@@ -4,27 +4,17 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#1f7a5c">
-<title>計時器工具箱</title>
+<title>YSTimer 計時器</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='36' r='24' fill='%231f7a5c'/%3E%3Crect x='26' y='4' width='12' height='8' rx='2' fill='%231f7a5c'/%3E%3Cpath d='M32 36V20' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
 :root{
-  --bg:#f4f5f2;--surface:#ffffff;--surface2:#eef0ec;--text:#1c2320;--muted:#65706a;--line:#dce0da;
-  --accent:#1f7a5c;--accent-ink:#ffffff;--work:#d4531c;--rest:#2b8a52;--warn:#c98a00;--danger:#c62f38;
-  --info:#2f6fb5;--cool:#7a55b8;--shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05);
-  --light-green:#2b8a52;--light-yellow:#e2a600;--light-red:#c62f38;
+  --bg:#f4f5f2;--surface:#fff;--surface2:#eef0ec;--text:#1c2320;--muted:#65706a;--line:#dce0da;
+  --accent:#1f7a5c;--accent-ink:#fff;--work:#d4531c;--rest:#2b8a52;--warn:#c98a00;--danger:#c62f38;--info:#2f6fb5;
+  --shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05);
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#111513;--surface:#1a1f1c;--surface2:#232a26;--text:#e7ebe8;--muted:#9aa49e;--line:#2d3531;
-    --accent:#3db387;--accent-ink:#06140e;--work:#ff7b45;--rest:#4cc47c;--warn:#f0b72f;--danger:#ff5f68;
-    --info:#62a1e6;--cool:#a98be0;--shadow:none;
-  }
-}
-:root[data-theme="dark"]{
+@media (prefers-color-scheme:dark){:root{
   --bg:#111513;--surface:#1a1f1c;--surface2:#232a26;--text:#e7ebe8;--muted:#9aa49e;--line:#2d3531;
-  --accent:#3db387;--accent-ink:#06140e;--work:#ff7b45;--rest:#4cc47c;--warn:#f0b72f;--danger:#ff5f68;
-  --info:#62a1e6;--cool:#a98be0;--shadow:none;
-}
+  --accent:#3db387;--accent-ink:#06140e;--work:#ff7b45;--rest:#4cc47c;--warn:#f0b72f;--danger:#ff5f68;--info:#62a1e6;--shadow:none}}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 html,body{margin:0}
@@ -33,235 +23,214 @@ body{background:var(--bg);color:var(--text);min-height:100vh;
   -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 .mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 button{font:inherit;color:inherit}
-a{color:inherit}
-
-/* top bar */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:10px 16px;
-  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
-  border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--line)}
 .topbar h1{font-size:17px;margin:0 6px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.back{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:600;padding:8px 10px;border-radius:10px;color:var(--accent);white-space:nowrap}
+.back{text-decoration:none;font-weight:700;padding:8px 10px;border-radius:10px;color:var(--accent);white-space:nowrap}
 .back:hover{background:var(--surface2)}
-.iconbtn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:0;background:transparent;cursor:pointer;text-decoration:none;font-size:18px;flex:none}
+.iconbtn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:0;background:transparent;cursor:pointer;text-decoration:none;font-size:18px;flex:none;color:var(--text)}
 .iconbtn:hover{background:var(--surface2)}
-main{max-width:980px;margin:0 auto;padding:16px 16px 56px}
+main{max-width:900px;margin:0 auto;padding:16px 16px 56px}
 
-/* home */
-.intro{margin:6px 2px 18px}
-.intro h2{font-size:26px;margin:0 0 4px}
+/* 首頁 */
+.intro h2{font-size:26px;margin:6px 0 2px}
 .intro p{margin:0;color:var(--muted)}
 .cat{margin:22px 2px 10px;font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.06em}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
-.tcard{position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:16px;background:var(--surface);
-  border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;transition:transform .12s,border-color .12s}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.tcard{position:relative;display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:transform .12s,border-color .12s}
 .tcard:hover{transform:translateY(-2px);border-color:var(--accent)}
-.tcard .ic{font-size:30px;line-height:1;flex:none;width:48px;height:48px;display:grid;place-items:center;background:var(--surface2);border-radius:12px}
-.tcard h3{margin:0 0 2px;font-size:17px}
-.tcard p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
-.live{position:absolute;top:10px;right:10px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
+.tcard .ic{font-size:28px;width:48px;height:48px;display:grid;place-items:center;background:var(--surface2);border-radius:12px;flex:none}
+.tcard h3{margin:0;font-size:16.5px}
+.tcard p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
+.live{position:absolute;top:8px;right:8px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
 .live:empty{display:none}
-.foot{margin-top:28px;font-size:13px;color:var(--muted);line-height:1.7}
-.foot code{background:var(--surface2);padding:1px 6px;border-radius:6px}
+.foot{margin-top:26px;font-size:13px;color:var(--muted);line-height:1.7}
+.foot code{background:var(--surface2);padding:1px 5px;border-radius:6px}
 
-/* shared components */
+/* 共用 */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
 .card h3{margin:0;font-size:16px}
 .card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
-.hero{--c:var(--accent);text-align:center;padding:22px 14px 20px;position:relative;overflow:hidden}
-.hero .phase{font-weight:700;color:var(--c);letter-spacing:.03em;font-size:17px;min-height:1.5em}
-.hero .stepname{font-size:clamp(26px,6vw,46px);font-weight:800;line-height:1.2;margin:4px 0 2px;color:var(--c);word-break:break-word}
-.big{font-size:clamp(64px,17vw,156px);font-weight:700;line-height:1.05;letter-spacing:-.02em;margin:4px 0}
+.hero{--c:var(--accent);text-align:center;padding:22px 14px 18px;position:relative;overflow:hidden}
+.hero .phase{font-weight:700;color:var(--c);font-size:18px;min-height:1.5em}
+.hero .stepname{font-size:clamp(28px,6.5vw,48px);font-weight:800;line-height:1.2;margin:2px 0;color:var(--c);word-break:break-word}
+.big{font-size:clamp(68px,18vw,160px);font-weight:700;line-height:1.05;letter-spacing:-.02em;margin:4px 0}
 .hero .sub{color:var(--muted);font-size:15px;min-height:1.5em}
 .hero.over .big{color:var(--danger)}
 .hero[data-phase="work"]{--c:var(--work)}
 .hero[data-phase="rest"]{--c:var(--rest)}
 .hero[data-phase="prep"]{--c:var(--info)}
-.hero[data-phase="cool"]{--c:var(--cool)}
-.hero[data-phase="short"]{--c:var(--rest)}
-.hero[data-phase="long"]{--c:var(--info)}
-.hero[data-phase="focus"]{--c:var(--work)}
-.hero[data-phase="done"]{--c:var(--accent)}
-.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:14px auto 4px;max-width:560px}
+.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:12px auto 4px;max-width:560px}
 .bar i{display:block;height:100%;width:0;background:var(--c,var(--accent));border-radius:inherit;transition:width .3s linear}
 .hero.over .bar i{background:var(--danger)}
-.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:600;padding:10px 16px;
-  border-radius:12px;cursor:pointer;min-height:44px;transition:background .12s,border-color .12s}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);font-weight:700;padding:10px 18px;border-radius:12px;cursor:pointer;min-height:48px;min-width:96px}
 .btn:hover:not(:disabled){border-color:var(--muted)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
-.btn.primary:hover:not(:disabled){filter:brightness(1.07)}
-.btn.xl{font-size:20px;padding:14px 28px;min-width:min(100%,300px)}
+.btn.xl{font-size:20px;padding:14px 28px;min-width:min(100%,240px);min-height:58px}
+.btn.sm{min-height:36px;min-width:0;padding:5px 12px;font-size:14px;font-weight:600}
 .btn.danger{color:var(--danger)}
-.btn.sm{min-height:34px;padding:5px 12px;font-size:14px}
 .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px}
 .chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-.chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:6px 14px;cursor:pointer;font-size:14.5px;font-weight:600;min-height:36px}
+.chips.center{justify-content:center;margin-bottom:14px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 16px;cursor:pointer;font-size:15px;font-weight:600;min-height:40px}
 .chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
-.field{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);font-weight:600;min-width:0}
-.field.grow{flex:1 1 200px}
-.field-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
-.lbl-line{font-size:14px;color:var(--muted);font-weight:600;margin:4px 0 6px}
-input,select,textarea{font:inherit;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px;width:100%}
-input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
-input[type=number]{width:90px}
-input[type=checkbox]{width:20px;height:20px;min-height:0;margin:0;accent-color:var(--accent);flex:none}
-.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer;margin-top:10px}
-.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface2);height:40px}
-.stepper button{border:0;background:transparent;width:38px;height:100%;cursor:pointer;font-size:18px;font-weight:700}
-.stepper button:hover{background:var(--line)}
-.stepper span{min-width:40px;text-align:center;font-weight:700;color:var(--text);font-size:17px}
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
-.stat .l{display:block;font-size:13px;color:var(--muted);font-weight:600}
-.stat .v{font-size:24px;font-weight:700}
-.stat.warn .v{color:var(--warn)} .stat.bad .v{color:var(--danger)} .stat.good .v{color:var(--rest)}
+.lbl{font-size:14px;color:var(--muted);font-weight:600;text-align:center;margin:0 0 8px}
+input{font:inherit;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:7px 10px;min-height:40px;width:100%}
+input:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input[type=number]{width:66px;text-align:center;padding:7px 4px}
+input[type=time]{width:auto}
+.mmss{display:inline-flex;align-items:center;gap:5px;color:var(--muted);font-size:14px;white-space:nowrap}
+.custom{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;color:var(--muted);font-size:14px}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 0;text-align:center}
 table.log{width:100%;border-collapse:collapse;font-size:15px}
 table.log th,table.log td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
 table.log th{font-size:13px;color:var(--muted);font-weight:600}
-table.log td.num,table.log th.num{text-align:right;font-variant-numeric:tabular-nums}
-table.log tr.best td{color:var(--rest);font-weight:700}
-table.log tr.worst td{color:var(--danger)}
-table.log tr.cur td{color:var(--muted);font-style:italic}
-.empty{color:var(--muted);text-align:center;margin:12px 0 4px;font-size:14px}
-details.cfg>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
-details.cfg>summary::-webkit-details-marker{display:none}
-details.cfg>summary::after{content:"▾";color:var(--muted);transition:transform .15s}
-details.cfg[open]>summary::after{transform:rotate(180deg)}
-details.cfg[open]>summary{margin-bottom:12px}
-fieldset{border:0;margin:0;padding:0;min-width:0}
-fieldset:disabled{opacity:.55}
-.hint{font-size:13px;color:var(--muted);margin:8px 0 0}
+table.log .num{text-align:right;font-variant-numeric:tabular-nums}
+.d-over{color:var(--danger);font-weight:700}.d-under{color:var(--info);font-weight:700}
+.sdot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px}
 
-/* ring */
-.ringwrap{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:6px auto 4px}
+/* 圓環 */
+.ringwrap{position:relative;width:min(76vw,320px);aspect-ratio:1;margin:4px auto}
 .ring{width:100%;height:100%;transform:rotate(-90deg)}
 .ring circle{fill:none;stroke-width:9}
 .ring .bgc{stroke:var(--surface2)}
-.ring .fg{stroke:var(--c,var(--accent));stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset .3s linear}
+.ring .fg{stroke:var(--c);stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset .3s linear}
 .hero.over .ring .fg{stroke:var(--danger)}
 .ringwrap .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.ringwrap .big{font-size:clamp(52px,15vw,88px)}
-.tabs{display:inline-flex;background:var(--surface2);border-radius:12px;padding:4px;gap:4px;margin-bottom:6px;flex-wrap:wrap;justify-content:center}
-.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
-.tabs button.on{background:var(--surface);color:var(--c);box-shadow:var(--shadow)}
-.dots{display:flex;gap:8px;justify-content:center;margin-top:10px}
-.dots i{width:12px;height:12px;border-radius:50%;background:var(--surface2);border:2px solid var(--line)}
+.ringwrap .big{font-size:clamp(52px,15vw,84px)}
+.dots{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.dots i{width:11px;height:11px;border-radius:50%;background:var(--surface2);border:2px solid var(--line)}
 .dots i.on{background:var(--work);border-color:var(--work)}
 
-/* teach */
+/* 重訓 */
+.restgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.restbtn{border:2px solid var(--rest);background:var(--surface);color:var(--rest);border-radius:16px;padding:14px 4px;font-size:clamp(26px,7vw,38px);font-weight:800;cursor:pointer;font-variant-numeric:tabular-nums}
+.restbtn small{font-size:15px;margin-left:2px;font-weight:700}
+.restbtn:hover{background:var(--rest);color:#fff}
+.restbtn.last{background:color-mix(in srgb,var(--rest) 14%,var(--surface))}
+
+/* 試教 */
 .steps{display:flex;flex-direction:column;gap:8px}
-.step-row{display:grid;grid-template-columns:auto 12px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--surface2)}
-.step-row.off{opacity:.5}
-.step-row .sw{width:12px;height:28px;border-radius:4px}
+.step-row{display:grid;grid-template-columns:10px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--surface2)}
+.step-row.zero{opacity:.5}
+.step-row .sw{width:10px;height:30px;border-radius:4px}
 .step-row .nm{background:var(--surface)}
-.step-row .mn{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--muted);white-space:nowrap}
-.step-row .mn input{width:72px;background:var(--surface);text-align:right}
-.ops{display:flex;gap:2px}
-.ib{border:0;background:transparent;width:32px;height:32px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:15px}
+.step-row input[type=number]{width:54px;background:var(--surface)}
+.ib{border:0;background:transparent;width:32px;height:32px;border-radius:8px;cursor:pointer;color:var(--muted)}
 .ib:hover:not(:disabled){background:var(--line);color:var(--text)}
 .ib:disabled{opacity:.25;cursor:default}
-@media (max-width:560px){
-  .step-row{grid-template-columns:auto 10px minmax(0,1fr) auto;grid-template-areas:"c s n n" "c s m o"}
-  .step-row>input[type=checkbox]{grid-area:c}.step-row .sw{grid-area:s;height:100%}
-  .step-row .nm{grid-area:n}.step-row .mn{grid-area:m}.step-row .ops{grid-area:o;justify-self:end}
+@media (max-width:520px){
+  .step-row{grid-template-columns:10px minmax(0,1fr) auto;grid-template-areas:"s n n" "s m o"}
+  .step-row .sw{grid-area:s;height:100%}.step-row .nm{grid-area:n}.step-row .mmss{grid-area:m}.step-row .ops{grid-area:o}
 }
-.alloc{margin:14px 0 6px}
-.alloc-bar,.timeline{display:flex;height:30px;border-radius:9px;overflow:hidden;background:var(--surface2);position:relative}
-.alloc-bar>div,.timeline>div{min-width:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;
-  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-right:2px solid var(--surface);padding:0 4px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
-.alloc-bar>.gap{background:repeating-linear-gradient(45deg,var(--surface2),var(--surface2) 6px,var(--line) 6px,var(--line) 12px);color:var(--muted);text-shadow:none}
-.alloc-text{font-size:14px;margin-top:6px;font-weight:600}
-.alloc-text.ok{color:var(--rest)} .alloc-text.under{color:var(--warn)} .alloc-text.over{color:var(--danger)}
-.timeline{height:38px;margin-bottom:12px}
-.timeline>div{opacity:.4}
-.timeline>div.done{opacity:.7}
-.timeline>div.cur{opacity:1}
-.timeline .now{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .3s linear;border:0;padding:0;min-width:0}
+.alloc-bar,.timeline{display:flex;height:30px;border-radius:9px;overflow:hidden;background:var(--surface2);position:relative;margin-top:12px}
+.alloc-bar>div,.timeline>div{min-width:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;overflow:hidden;white-space:nowrap;border-right:2px solid var(--surface);text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.alloc-bar>.gap{background:repeating-linear-gradient(45deg,var(--surface2) 0 6px,var(--line) 6px 12px);color:var(--muted);text-shadow:none}
+.alloc-text{font-size:14px;margin-top:6px;font-weight:700}
+.alloc-text.ok{color:var(--rest)}.alloc-text.under{color:var(--warn)}.alloc-text.over{color:var(--danger)}
+.timeline{height:36px;margin:0 0 14px}
+.timeline>div{opacity:.35}.timeline>div.done{opacity:.65}.timeline>div.cur{opacity:1}
 .teach-run .hero{border-top:6px solid var(--c)}
-.d-over{color:var(--danger);font-weight:700}.d-under{color:var(--info);font-weight:700}
-.sdot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
 
-/* exam */
-.exam-hero{text-align:center;padding:26px 14px}
+/* 棋鐘 */
+.chess{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.cside{border:2px solid var(--line);background:var(--surface);border-radius:20px;min-height:min(46vh,340px);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:background .15s}
+.cside .t{font-size:clamp(48px,11vw,110px);font-weight:700;letter-spacing:-.02em}
+.cside .n{font-weight:700;color:var(--muted)}
+.cside.act{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.cside.act .n{color:inherit;opacity:.85}
+.cside.out{background:var(--danger);color:#fff;border-color:transparent}
+@media (max-width:640px){.chess{grid-template-columns:1fr}.cside{min-height:30vh}.cside.top{transform:rotate(180deg)}}
+
+/* 呼吸 */
+.breath{width:min(72vw,300px);aspect-ratio:1;margin:10px auto;display:grid;place-items:center;position:relative}
+.breath .orb{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 40% 35%,color-mix(in srgb,var(--info) 55%,#fff),var(--info));transform:scale(.55);transition:transform .25s linear;opacity:.85}
+.breath .txt{position:relative;color:#fff;text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.25)}
+.breath .txt b{display:block;font-size:30px}
+.breath .txt span{font-size:44px;font-weight:700}
+
+/* 廚房 */
+.kgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.kcard{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;box-shadow:var(--shadow);text-align:center}
+.kcard .nm{font-weight:700}
+.kcard .t{font-size:44px;font-weight:700;line-height:1.1;margin:2px 0 6px}
+.kcard .acts{display:flex;gap:6px;justify-content:center}
+.kcard.done{border-color:var(--danger);animation:pulse 1s infinite}
+.kcard.done .t{color:var(--danger)}
+@keyframes pulse{50%{background:color-mix(in srgb,var(--danger) 14%,var(--surface))}}
+
+/* 考試 */
+.exam-hero{text-align:center;padding:24px 14px}
 .exam-date{color:var(--muted);font-weight:600;font-size:clamp(16px,2.5vw,22px)}
-.exam-clock{font-size:clamp(72px,19vw,210px);font-weight:700;line-height:1;letter-spacing:-.02em;margin:6px 0 10px}
-.exam-subject{font-size:clamp(26px,5vw,48px);font-weight:800;margin:0}
+.exam-clock{font-size:clamp(72px,19vw,200px);font-weight:700;line-height:1;margin:6px 0 10px}
+.exam-subject{font-size:clamp(26px,5vw,46px);font-weight:800;margin:0}
 .exam-range{color:var(--muted);font-size:clamp(17px,2.6vw,24px);font-weight:600}
-.exam-status{display:inline-flex;flex-direction:column;align-items:center;margin-top:16px;padding:10px 26px;border-radius:16px;background:var(--surface2);min-width:min(100%,320px)}
+.exam-status{display:inline-flex;flex-direction:column;align-items:center;margin-top:14px;padding:10px 26px;border-radius:16px;background:var(--surface2);min-width:min(100%,300px)}
 .exam-status .l{font-weight:700;color:var(--muted)}
-.exam-status .v{font-size:clamp(40px,9vw,84px);font-weight:700;line-height:1.1}
-.exam-status.warn{background:color-mix(in srgb,var(--warn) 18%,var(--surface))}.exam-status.warn .v{color:var(--warn)}
-.exam-status.bad{background:color-mix(in srgb,var(--danger) 16%,var(--surface))}.exam-status.bad .v{color:var(--danger)}
-.exam-notes{white-space:pre-line;font-size:clamp(17px,2.6vw,26px);margin-top:16px;font-weight:600}
-.exam-notes:empty{display:none}
+.exam-status .v{font-size:clamp(40px,9vw,80px);font-weight:700;line-height:1.1}
+.exam-status.warn .v{color:var(--warn)}.exam-status.bad .v{color:var(--danger)}
+.erow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin-bottom:12px;color:var(--muted);font-size:14px;font-weight:600}
+.erow input:not([type]){max-width:320px}
 
-/* speech */
+/* 發表 */
 .speech-hero{transition:background .4s,color .4s}
-.speech-hero[data-light="green"]{background:var(--light-green);color:#fff;border-color:transparent}
-.speech-hero[data-light="yellow"]{background:var(--light-yellow);color:#1a1400;border-color:transparent}
-.speech-hero[data-light="red"]{background:var(--light-red);color:#fff;border-color:transparent}
-.speech-hero[data-light] .phase,.speech-hero[data-light] .sub{color:inherit;opacity:.9}
-.speech-hero[data-light="idle"]{background:var(--surface)}
+.speech-hero[data-light="green"]{background:#2b8a52;color:#fff;border-color:transparent}
+.speech-hero[data-light="yellow"]{background:#e2a600;color:#1a1400;border-color:transparent}
+.speech-hero[data-light="red"]{background:#c62f38;color:#fff;border-color:transparent}
+.speech-hero[data-light] .phase,.speech-hero[data-light] .sub{color:inherit}
 .speech-hero[data-light="idle"] .phase{color:var(--muted)}
-.lights{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.lights i{width:22px;height:22px;border-radius:50%;background:rgba(127,127,127,.25);border:2px solid rgba(255,255,255,.35)}
-.lights i.g.on{background:#3bd16f}.lights i.y.on{background:#ffd23f}.lights i.r.on{background:#ff4b55}
+.laps{max-width:420px;margin:0 auto}
 
-/* overlay bits */
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:12px;
-  font-weight:700;opacity:0;pointer-events:none;transition:all .25s;z-index:60;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+/* 其他 */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:all .25s;z-index:60;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 body.flash::after{content:"";position:fixed;inset:0;background:var(--accent);pointer-events:none;z-index:55;animation:fl 1.2s ease-out}
 @keyframes fl{0%{opacity:.45}25%{opacity:0}45%{opacity:.35}100%{opacity:0}}
 .modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:70;padding:16px}
-.modal .box{background:var(--surface);border-radius:16px;padding:20px;width:min(420px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal .box{background:var(--surface);border-radius:16px;padding:20px;width:min(400px,100%)}
 .modal p{margin:0 0 14px;white-space:pre-line}
-.modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
-
-/* fullscreen / presentation */
-:root.fs .cfg,:root.fs .nofs{display:none!important}
-:root.fs main{max-width:none;padding-top:12px}
-:root.fs .big{font-size:clamp(90px,22vw,340px)}
-:root.fs .ringwrap{width:min(70vh,80vw)}
-:root.fs .ringwrap .big{font-size:clamp(70px,13vh,160px)}
-:root.fs .exam-clock{font-size:clamp(100px,24vw,360px)}
+.modal .acts{display:flex;justify-content:flex-end;gap:8px}
+:root.fs .cfg{display:none!important}
+:root.fs main{max-width:none}
+:root.fs .big{font-size:clamp(90px,22vw,320px)}
+:root.fs .exam-clock{font-size:clamp(100px,24vw,340px)}
 :root.fs .hero .stepname{font-size:clamp(34px,7vw,90px)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
 <header class="topbar">
-  <a class="back" id="backBtn" href="#" hidden>‹ 全部計時器</a>
-  <h1 id="pageTitle">計時器工具箱</h1>
-  <button class="iconbtn" id="soundBtn" title="音效開關" aria-label="音效開關">🔔</button>
-  <button class="iconbtn" id="themeBtn" title="切換深淺色" aria-label="切換深淺色">🌓</button>
-  <button class="iconbtn" id="fsBtn" title="全螢幕（F）" aria-label="全螢幕">⛶</button>
-  <a class="iconbtn" id="newTabBtn" target="_blank" rel="noopener" title="在新分頁開啟" aria-label="在新分頁開啟" hidden>↗</a>
+  <a class="back" id="backBtn" href="#" hidden>‹ 全部</a>
+  <h1 id="pageTitle">YSTimer 計時器</h1>
+  <button class="iconbtn" id="soundBtn" title="音效開關">🔔</button>
+  <button class="iconbtn" id="fsBtn" title="全螢幕（F）">⛶</button>
+  <a class="iconbtn" id="newTabBtn" target="_blank" rel="noopener" title="在新分頁開啟" hidden>↗</a>
 </header>
-<main id="app">
-  <section id="v-home" class="view"></section>
-</main>
+<main id="app"><section id="v-home" class="view"></section></main>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
 'use strict';
-/* ================= 共用工具 ================= */
+/* ========== 共用工具 ========== */
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const store = {
-  get(k, d) { try { const v = localStorage.getItem('ystimer:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('ystimer:' + k, JSON.stringify(v)); } catch (e) {} }
+  get(k, d) { try { const v = localStorage.getItem('ystimer2:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('ystimer2:' + k, JSON.stringify(v)); } catch (e) {} }
 };
-const pad = (n, l = 2) => String(n).padStart(l, '0');
+const pad = n => String(n).padStart(2, '0');
 function fmtS(sec) { const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`; }
-const up = ms => fmtS(Math.floor(Math.max(0, ms) / 1000));                          // 正向計時
-const down = ms => ms > 0 ? fmtS(Math.ceil(ms / 1000)) : (ms > -1000 ? '00:00' : '+' + fmtS(Math.floor(-ms / 1000))); // 倒數，超時顯示 +
+const up = ms => fmtS(Math.floor(Math.max(0, ms) / 1000));
+const down = ms => ms > 0 ? fmtS(Math.ceil(ms / 1000)) : (ms > -1000 ? '00:00' : '+' + fmtS(Math.floor(-ms / 1000)));
 const cs = ms => `${fmtS(Math.floor(ms / 1000))}.${pad(Math.floor(ms % 1000 / 10))}`;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
 const num = (v, d = 0) => { const n = parseFloat(v); return isFinite(n) ? n : d; };
+const todayKey = () => new Date().toDateString();
+const T = (el, txt) => { if (el && el.textContent !== txt) el.textContent = txt; };
+const keys = el => { const k = {}; $$('[data-k]', el).forEach(n => k[n.dataset.k] = n); return k; };
+const onAct = (el, fn) => el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) fn(b.dataset.act, b); });
+const mmssHTML = key => `<span class="mmss"><input type="number" min="0" data-${key}="m" aria-label="分">分<input type="number" min="0" max="59" data-${key}="s" aria-label="秒">秒</span>`;
 
-/* 以真實時間為準的計時器，背景分頁也不會跑慢 */
 class Clock {
   constructor(o) { this.acc = (o && o.acc) || 0; this.t0 = (o && o.t0) || null; }
   get on() { return this.t0 !== null; }
@@ -274,30 +243,14 @@ class Clock {
   toJSON() { return { acc: this.acc, t0: this.t0 }; }
 }
 
-/* 音效 */
 const Sound = {
   ctx: null, on: store.get('sound', true),
-  unlock() {
-    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; } }
-    if (this.ctx.state === 'suspended') this.ctx.resume();
-  },
-  tone(freq, dur, type, at, vol) {
-    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
-    o.type = type; o.frequency.value = freq;
-    g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
-    o.connect(g); g.connect(c.destination); o.start(at); o.stop(at + dur + 0.05);
-  },
-  beep(n = 1, freq = 880, dur = 0.14, gap = 0.1) {
-    if (!this.on) return; this.unlock(); if (!this.ctx) return;
-    let t = this.ctx.currentTime + 0.02;
-    for (let i = 0; i < n; i++) { this.tone(freq, dur, 'sine', t, 0.35); t += dur + gap; }
-  },
-  bell(n = 1) { // 類似按鈴的叮聲
-    if (!this.on) return; this.unlock(); if (!this.ctx) return;
-    let t = this.ctx.currentTime + 0.02;
-    for (let i = 0; i < n; i++) { this.tone(1320, 0.9, 'triangle', t, 0.45); this.tone(2640, 0.5, 'sine', t, 0.12); t += 0.38; }
-  }
+  unlock() { if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; } } if (this.ctx.state === 'suspended') this.ctx.resume(); },
+  tone(f, d, type, at, vol) { const c = this.ctx, o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.01); g.gain.exponentialRampToValueAtTime(0.0001, at + d); o.connect(g); g.connect(c.destination); o.start(at); o.stop(at + d + 0.05); },
+  ready() { if (!this.on) return false; this.unlock(); return !!this.ctx; },
+  beep(n = 1, f = 880, d = 0.14, gap = 0.1) { if (!this.ready()) return; let t = this.ctx.currentTime + 0.02; for (let i = 0; i < n; i++) { this.tone(f, d, 'sine', t, 0.35); t += d + gap; } },
+  bell(n = 1) { if (!this.ready()) return; let t = this.ctx.currentTime + 0.02; for (let i = 0; i < n; i++) { this.tone(1320, 0.9, 'triangle', t, 0.45); this.tone(2640, 0.5, 'sine', t, 0.12); t += 0.38; } },
+  soft(f = 440) { if (!this.ready()) return; this.tone(f, 0.6, 'sine', this.ctx.currentTime + 0.02, 0.18); }
 };
 document.addEventListener('pointerdown', () => Sound.unlock());
 document.addEventListener('keydown', () => Sound.unlock());
@@ -305,913 +258,638 @@ document.addEventListener('keydown', () => Sound.unlock());
 let toastTimer;
 function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms); }
 function flash() { document.body.classList.remove('flash'); void document.body.offsetWidth; document.body.classList.add('flash'); setTimeout(() => document.body.classList.remove('flash'), 1300); }
-function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
-function alarm(msg, { bell = 1, beep = 0 } = {}) { if (bell) Sound.bell(bell); if (beep) Sound.beep(beep); if (msg) toast(msg, 4000); flash(); vib([200, 100, 200]); }
-function copyText(text) {
-  const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); toast(ok ? '已複製到剪貼簿' : '複製失敗，請手動選取'); };
-  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => toast('已複製到剪貼簿'), fallback); else fallback();
-}
-/* 自製確認／輸入框（嵌入協作平台時瀏覽器內建的 confirm 可能被封鎖） */
-function ask(msg, { ok = '確定', cancel = '取消', input = null, danger = false } = {}) {
+function alarm(msg, bell = 2) { if (bell) Sound.bell(bell); if (msg) toast(msg, 4000); flash(); try { navigator.vibrate && navigator.vibrate([200, 100, 200]); } catch (e) {} }
+function ask(msg, ok = '確定') {
   return new Promise(res => {
     const m = document.createElement('div'); m.className = 'modal';
-    m.innerHTML = `<div class="box" role="dialog" aria-modal="true"><p>${esc(msg)}</p>${input !== null ? `<input id="askIn" value="${esc(input)}">` : ''}
-      <div class="acts"><button class="btn" data-r="0">${esc(cancel)}</button><button class="btn ${danger ? 'danger' : 'primary'}" data-r="1">${esc(ok)}</button></div></div>`;
-    document.body.appendChild(m);
-    const inp = $('#askIn', m); (inp || $('[data-r="1"]', m)).focus(); if (inp) inp.select();
-    const done = r => { m.remove(); res(input !== null ? (r ? inp.value.trim() : null) : r); };
+    m.innerHTML = `<div class="box" role="dialog" aria-modal="true"><p>${esc(msg)}</p><div class="acts"><button class="btn" data-r="0">取消</button><button class="btn primary" data-r="1">${esc(ok)}</button></div></div>`;
+    document.body.appendChild(m); $('[data-r="1"]', m).focus();
+    const done = r => { m.remove(); res(r); };
     m.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) done(b.dataset.r === '1'); else if (e.target === m) done(false); });
-    m.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') done(false); if (e.key === 'Enter') done(true); });
+    m.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') done(false); });
   });
 }
 const ringSVG = id => `<svg class="ring" viewBox="0 0 200 200" aria-hidden="true"><circle class="bgc" cx="100" cy="100" r="90"/><circle class="fg" id="${id}" cx="100" cy="100" r="90" pathLength="1000"/></svg>`;
 const setRing = (el, p) => { el.style.strokeDashoffset = String(1000 * (1 - Math.min(1, Math.max(0, p)))); };
-/* 只在內容改變時才更新 DOM */
-function T(el, txt) { if (el && el.textContent !== txt) el.textContent = txt; }
+const Wake = { lock: null, busy: false, async want(on) {
+  if (this.busy || !('wakeLock' in navigator)) return;
+  try { this.busy = true;
+    if (on && !this.lock && document.visibilityState === 'visible') { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); }
+    else if (!on && this.lock) { await this.lock.release(); this.lock = null; }
+  } catch (e) {} finally { this.busy = false; } } };
+/* 分＋秒輸入框 */
+function readMMSS(el, key) { const m = Math.max(0, Math.round(num($(`[data-${key}="m"]`, el).value))), s = Math.max(0, Math.round(num($(`[data-${key}="s"]`, el).value))); return m * 60 + s; }
+function fillMMSS(el, key, sec) { $(`[data-${key}="m"]`, el).value = Math.floor(sec / 60); $(`[data-${key}="s"]`, el).value = sec % 60; }
 
-/* 螢幕常亮 */
-const Wake = {
-  lock: null, busy: false,
-  async want(on) {
-    if (this.busy || !('wakeLock' in navigator)) return;
-    try {
-      this.busy = true;
-      if (on && !this.lock && document.visibilityState === 'visible') { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); }
-      else if (!on && this.lock) { await this.lock.release(); this.lock = null; }
-    } catch (e) {} finally { this.busy = false; }
-  }
-};
-
-/* ================= 1. 重訓計時器 ================= */
-const EXERCISES = ['高拉下','滑輪下拉','引體向上','槓鈴划船','坐姿划船','單臂啞鈴划船','直臂下壓','二頭彎舉','錘式彎舉','槓鈴臥推','上斜啞鈴臥推','雙槓撐體','蝴蝶機夾胸','啞鈴肩推','側平舉','反向飛鳥','三頭下壓','過頭三頭伸展','深蹲','硬舉','羅馬尼亞硬舉','腿推','保加利亞分腿蹲','腿伸屈','腿後勾','小腿提踵','棒式'];
+/* ========== 1. 重訓計時器 ========== */
+const REST = [30, 45, 60, 90, 120, 180];
 const gym = {
-  id: 'gym', name: '重訓計時器', icon: '🏋️', cat: '運動健身', desc: '總時間正計時、每組訓練計時、組間休息倒數，自動記錄每一組',
+  id: 'gym', name: '重訓計時器', icon: '🏋️', cat: '運動健身', desc: '做完一組，點休息秒數就開始倒數，休息完自動回到訓練',
   html: `
-  <div class="stats">
-    <div class="stat"><span class="l">總時間</span><span class="v mono" data-k="total">00:00</span></div>
-    <div class="stat"><span class="l">完成組數</span><span class="v mono" data-k="sets">0</span></div>
-    <div class="stat"><span class="l">累計訓練</span><span class="v mono" data-k="sumw">00:00</span></div>
-    <div class="stat"><span class="l">累計休息</span><span class="v mono" data-k="sumr">00:00</span></div>
-  </div>
-  <div class="card hero" data-k="hero" data-phase="idle">
-    <div class="phase" data-k="phase">準備開始</div>
+  <div class="card hero" data-k="hero">
+    <div class="phase" data-k="phase"></div>
     <div class="big mono" data-k="big">00:00</div>
-    <div class="sub" data-k="sub">輸入動作、選好休息時間後按「開始訓練」</div>
-    <div class="bar"><i data-k="bar"></i></div>
+    <div class="sub" data-k="sub"></div>
+    <div class="bar" data-k="barbox"><i data-k="bar"></i></div>
   </div>
-  <div class="row"><button class="btn primary xl" data-act="main" data-k="main">開始訓練</button></div>
-  <div class="row">
-    <button class="btn" data-act="rest-">休息 −15 秒</button>
-    <button class="btn" data-act="rest+">休息 +15 秒</button>
-    <button class="btn" data-act="pause" data-k="pause">暫停</button>
-    <button class="btn danger" data-act="finish" data-k="finish">結束訓練</button>
-  </div>
-  <div class="card cfg">
-    <div class="field-row">
-      <label class="field grow">動作名稱<input data-k="ex" list="gymExList" placeholder="例：高拉下（換動作時組數自動歸 1）"></label>
-      <div class="field">目前第幾組<div class="stepper"><button data-act="set-" aria-label="減一組">−</button><span data-k="setno">1</span><button data-act="set+" aria-label="加一組">+</button></div></div>
-    </div>
-    <datalist id="gymExList">${EXERCISES.map(x => `<option value="${x}">`).join('')}</datalist>
-    <div class="lbl-line">組間休息時間</div>
-    <div class="chips" data-k="chips">
-      ${[30, 45, 60, 90, 120, 150, 180, 240].map(v => `<button class="chip" data-act="restp" data-v="${v}">${v >= 60 ? (v % 60 ? (v / 60).toFixed(1).replace('.0', '') + ' 分' : v / 60 + ' 分') : v + ' 秒'}</button>`).join('')}
-      <span style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)">自訂 <input type="number" min="5" step="5" data-k="custom" placeholder="秒"> 秒</span>
-    </div>
-    <label class="check"><input type="checkbox" data-k="auto"> 休息結束後自動開始下一組</label>
-    <p class="hint">快捷鍵：空白鍵 = 主按鈕（開始／完成本組／下一組）。休息剩 3 秒會嗶聲倒數。</p>
-  </div>
-  <div class="card">
-    <div class="card-head"><h3>訓練紀錄</h3><div class="chips"><button class="btn sm" data-act="copy">複製紀錄</button><button class="btn sm danger" data-act="clear">清除</button></div></div>
-    <table class="log"><thead><tr><th>#</th><th>動作</th><th class="num">組</th><th class="num">訓練</th><th class="num">休息</th></tr></thead><tbody data-k="log"></tbody></table>
-    <p class="empty" data-k="empty">尚無紀錄，完成第一組後會出現在這裡</p>
-  </div>`,
+  <div class="row" data-k="pIdle"><button class="btn primary xl" data-act="start">開始訓練</button></div>
+  <div data-k="pWork"><p class="lbl">做完這組，點選要休息幾秒：</p>
+    <div class="restgrid">${REST.map(v => `<button class="restbtn" data-act="rest" data-v="${v}">${v}<small>秒</small></button>`).join('')}</div></div>
+  <div class="row" data-k="pRest"><button class="btn" data-act="add">+15 秒</button><button class="btn primary xl" data-act="skip">提早開始下一組</button></div>
+  <div class="row" data-k="pDone"><button class="btn primary xl" data-act="new">再練一次</button></div>
+  <div class="row" data-k="pEnd"><button class="btn sm danger" data-act="end">結束訓練</button></div>`,
   init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.s = { phase: 'idle', paused: false, restSel: 90, restDur: 90000, setNo: 1, ex: '', log: [], auto: false };
-    this.total = new Clock(); this.work = new Clock(); this.rest = new Clock();
-    const saved = store.get('gym', null);
-    if (saved && saved.s) { Object.assign(this.s, saved.s); this.total = new Clock(saved.total); this.work = new Clock(saved.work); this.rest = new Clock(saved.rest); }
-    this.ended = this.s.phase === 'rest' && this.restRemain() <= 0; this.lastSec = null;
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
-    this.k.ex.value = this.s.ex;
-    this.k.ex.addEventListener('change', () => { const v = this.k.ex.value.trim(); if (v !== this.s.ex) { this.s.ex = v; this.s.setNo = 1; this.save(); this.render(); } });
-    this.k.auto.checked = this.s.auto;
-    this.k.auto.addEventListener('change', () => { this.s.auto = this.k.auto.checked; this.save(); });
-    this.k.custom.addEventListener('change', () => { const v = Math.round(num(this.k.custom.value)); if (v >= 5) { this.setRest(v); this.save(); this.render(); } });
-    this.renderChips(); this.renderLog();
+    this.el = el; this.k = keys(el);
+    const sv = store.get('gym', null);
+    this.s = Object.assign({ phase: 'idle', restDur: 60000, sets: 0, last: 60 }, sv && sv.s);
+    this.total = new Clock(sv && sv.total); this.ph = new Clock(sv && sv.ph);
+    this.lastSec = null;
+    onAct(el, (a, b) => this.act(a, b));
   },
-  restRemain() { return this.s.restDur - this.rest.ms; },
-  running() { return (this.s.phase === 'work' || this.s.phase === 'rest') && !this.s.paused; },
-  save() { store.set('gym', { s: this.s, total: this.total, work: this.work, rest: this.rest }); },
-  toggle() { this.act('main'); },
+  save() { store.set('gym', { s: this.s, total: this.total, ph: this.ph }); },
+  running() { return this.s.phase === 'work' || this.s.phase === 'rest'; },
+  toggle() { const p = this.s.phase; if (p === 'idle') this.act('start'); else if (p === 'work') this.act('rest', { dataset: { v: this.s.last } }); else if (p === 'rest') this.act('skip'); },
   async act(a, b) {
     const s = this.s;
-    switch (a) {
-      case 'main':
-        if (s.phase === 'idle') { this.total.reset(); this.total.play(); this.startWork(); Sound.beep(1, 880); }
-        else if (s.phase === 'work') this.endSet();
-        else if (s.phase === 'rest') this.nextSet();
-        else if (s.phase === 'done') { if (s.log.length && !await ask('開始新的訓練會清除這次的紀錄（可先按「複製紀錄」保存），確定嗎？')) return; this.resetAll(); }
-        break;
-      case 'pause': this.togglePause(); break;
-      case 'rest-': this.adjRest(-15); break;
-      case 'rest+': this.adjRest(15); break;
-      case 'finish': await this.finish(); break;
-      case 'set-': s.setNo = Math.max(1, s.setNo - 1); break;
-      case 'set+': s.setNo++; break;
-      case 'restp': this.setRest(+b.dataset.v); break;
-      case 'copy': this.copy(); return;
-      case 'clear':
-        if (!s.log.length) return;
-        if (await ask('清除所有訓練紀錄？', { ok: '清除', danger: true })) { s.log = []; if (s.phase === 'done') this.resetAll(); this.renderLog(); }
-        break;
-    }
+    if (a === 'start') { s.sets = 0; this.total.reset(); this.total.play(); this.toWork(); Sound.beep(1, 880); }
+    else if (a === 'rest') { s.sets++; s.last = +b.dataset.v; s.restDur = s.last * 1000; s.phase = 'rest'; this.ph.reset(); this.ph.play(); this.lastSec = null; Sound.beep(1, 523, 0.18); }
+    else if (a === 'add') s.restDur += 15000;
+    else if (a === 'skip') { this.toWork(); Sound.beep(2, 988, 0.1); }
+    else if (a === 'end') { if (!await ask('結束這次訓練？')) return; s.phase = 'done'; this.total.pause(); this.ph.pause(); Sound.bell(2); }
+    else if (a === 'new') { s.phase = 'idle'; this.total.reset(); this.ph.reset(); }
     this.save(); this.render();
   },
-  startWork() { const s = this.s; s.phase = 'work'; s.paused = false; this.work.reset(); this.work.play(); this.total.play(); },
-  endSet() {
-    const s = this.s; this.work.pause();
-    s.log.push({ ex: s.ex || '（未命名動作）', set: s.setNo, work: this.work.ms, rest: null });
-    s.setNo++; this.work.reset(); s.phase = 'rest'; s.paused = false;
-    this.rest.reset(); this.rest.play(); this.total.play();
-    this.ended = false; this.lastSec = null; Sound.beep(1, 523, 0.18); this.renderLog();
-  },
-  nextSet() { const s = this.s, last = s.log[s.log.length - 1]; if (last && last.rest == null) last.rest = this.rest.ms; this.rest.reset(); this.startWork(); Sound.beep(2, 988, 0.1); this.renderLog(); },
-  togglePause() {
-    const s = this.s; if (s.phase !== 'work' && s.phase !== 'rest') return;
-    const c = s.phase === 'work' ? this.work : this.rest;
-    s.paused = !s.paused; if (s.paused) { this.total.pause(); c.pause(); } else { this.total.play(); c.play(); }
-  },
-  adjRest(d) { this.s.restDur = Math.max(5000, this.s.restDur + d * 1000); if (this.restRemain() > 0) this.ended = false; },
-  setRest(v) { const s = this.s; s.restSel = v; s.restDur = v * 1000; if (s.phase === 'rest') this.ended = this.restRemain() <= 0; this.renderChips(); },
-  async finish() {
-    const s = this.s; if (s.phase === 'idle' || s.phase === 'done') return;
-    if (!await ask('結束這次訓練？')) return;
-    if (s.phase === 'work' && this.work.ms >= 3000) { s.log.push({ ex: s.ex || '（未命名動作）', set: s.setNo, work: this.work.ms, rest: null }); s.setNo++; }
-    if (s.phase === 'rest') { const last = s.log[s.log.length - 1]; if (last && last.rest == null) last.rest = this.rest.ms; }
-    this.total.pause(); this.work.pause(); this.rest.pause(); s.phase = 'done'; s.paused = false;
-    this.renderLog(); Sound.bell(2);
-  },
-  resetAll() { const s = this.s; s.phase = 'idle'; s.paused = false; s.log = []; s.setNo = 1; this.total.reset(); this.work.reset(); this.rest.reset(); this.renderLog(); },
-  sums() {
-    const s = this.s;
-    return { w: s.log.reduce((a, x) => a + x.work, 0) + (s.phase === 'work' ? this.work.ms : 0),
-             r: s.log.reduce((a, x) => a + (x.rest || 0), 0) + (s.phase === 'rest' ? this.rest.ms : 0) };
-  },
-  copy() {
-    const s = this.s; if (!s.log.length) { toast('還沒有紀錄'); return; }
-    const sm = this.sums(), rests = s.log.filter(x => x.rest != null);
-    const avg = rests.length ? up(rests.reduce((a, x) => a + x.rest, 0) / rests.length) : '-';
-    const lines = [`重訓紀錄 ${new Date().toLocaleDateString('zh-TW')}`, `總時間 ${up(this.total.ms)}｜${s.log.length} 組｜訓練 ${up(sm.w)}｜休息 ${up(sm.r)}｜平均休息 ${avg}`, '',
-      ...s.log.map((x, i) => `${i + 1}. ${x.ex} 第${x.set}組　訓練 ${up(x.work)}　休息 ${x.rest == null ? '-' : up(x.rest)}`)];
-    copyText(lines.join('\n'));
-  },
-  renderChips() { $$('.chip', this.k.chips).forEach(c => c.classList.toggle('on', +c.dataset.v === this.s.restSel)); if (![30, 45, 60, 90, 120, 150, 180, 240].includes(this.s.restSel)) this.k.custom.value = this.s.restSel; },
-  renderLog() {
-    const L = this.s.log;
-    this.k.log.innerHTML = L.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.ex)}</td><td class="num">${x.set}</td><td class="num">${up(x.work)}</td><td class="num">${x.rest == null ? '—' : up(x.rest)}</td></tr>`).reverse().join('');
-    this.k.empty.hidden = L.length > 0;
-  },
+  toWork() { this.s.phase = 'work'; this.ph.reset(); this.ph.play(); },
   logic() {
-    const s = this.s; if (s.phase !== 'rest' || s.paused) return;
-    const r = this.restRemain(), sec = Math.ceil(r / 1000);
+    if (this.s.phase !== 'rest') return;
+    const r = this.s.restDur - this.ph.ms, sec = Math.ceil(r / 1000);
     if (r > 0 && sec <= 3 && sec !== this.lastSec) { this.lastSec = sec; Sound.beep(1, 660, 0.09); }
-    if (r <= 0 && !this.ended) {
-      this.ended = true; alarm('休息結束，開始下一組！', { bell: 0 }); Sound.beep(1, 1046, 0.5);
-      if (s.auto) { this.nextSet(); this.save(); }
-    }
+    if (r <= 0) { this.toWork(); this.save(); alarm(`休息結束，開始第 ${this.s.sets + 1} 組！`, 0); Sound.beep(1, 1046, 0.5); }
   },
-  title() { const s = this.s; if (s.phase === 'rest') return down(this.restRemain()); if (s.phase === 'work') return up(this.work.ms); return null; },
+  title() { const s = this.s; return s.phase === 'rest' ? down(s.restDur - this.ph.ms) : s.phase === 'work' ? up(this.ph.ms) : null; },
   render() {
-    const s = this.s, k = this.k, sm = this.sums(), ex = s.ex || '未命名動作';
-    T(k.total, up(this.total.ms)); T(k.sets, String(s.log.length)); T(k.sumw, up(sm.w)); T(k.sumr, up(sm.r)); T(k.setno, String(s.setNo));
-    k.hero.dataset.phase = s.phase === 'idle' ? 'done' : s.phase;
-    let phase = '', big = '00:00', sub = '', bar = 0, over = false;
-    if (s.phase === 'idle') { phase = '準備開始'; sub = `第一組：${ex} 第 ${s.setNo} 組`; }
-    else if (s.phase === 'work') { phase = `訓練中 · ${ex} 第 ${s.setNo} 組`; big = up(this.work.ms); sub = `完成後按「完成本組」進入 ${up(s.restDur)} 休息`; }
-    else if (s.phase === 'rest') {
-      const r = this.restRemain(); over = r <= 0; phase = over ? '休息時間到！' : '組間休息'; big = down(r);
-      bar = Math.min(100, this.rest.ms / s.restDur * 100); sub = `下一組：${ex} 第 ${s.setNo} 組（休息設定 ${up(s.restDur)}）`;
-    } else { phase = '訓練完成 💪'; big = up(this.total.ms); sub = `共 ${s.log.length} 組｜訓練 ${up(sm.w)}｜休息 ${up(sm.r)}`; }
-    if (s.paused) phase += '（已暫停）';
-    T(k.phase, phase); T(k.big, big); T(k.sub, sub); k.bar.style.width = bar + '%'; k.hero.classList.toggle('over', over);
-    T(k.main, { idle: '開始訓練', work: '完成本組 → 休息', rest: '開始下一組', done: '開始新的訓練' }[s.phase]);
-    T(k.pause, s.paused ? '繼續' : '暫停');
-    k.pause.disabled = k.finish.disabled = !(s.phase === 'work' || s.phase === 'rest');
+    const s = this.s, k = this.k, p = s.phase;
+    k.hero.dataset.phase = p === 'rest' ? 'rest' : p === 'work' ? 'work' : '';
+    let ph, big, sub, bar = null;
+    if (p === 'idle') { ph = '準備開始'; big = '00:00'; sub = '按下開始後，總時間與第一組同時計時'; }
+    else if (p === 'work') { ph = `第 ${s.sets + 1} 組・訓練中`; big = up(this.ph.ms); sub = `總時間 ${up(this.total.ms)}`; }
+    else if (p === 'rest') { const r = s.restDur - this.ph.ms; ph = '休息'; big = down(r); bar = this.ph.ms / s.restDur; sub = `已完成 ${s.sets} 組・總時間 ${up(this.total.ms)}`; }
+    else { ph = '訓練完成 💪'; big = up(this.total.ms); sub = `共完成 ${s.sets} 組`; }
+    T(k.phase, ph); T(k.big, big); T(k.sub, sub);
+    k.barbox.hidden = bar === null; if (bar !== null) k.bar.style.width = Math.min(100, bar * 100) + '%';
+    k.pIdle.hidden = p !== 'idle'; k.pWork.hidden = p !== 'work'; k.pRest.hidden = p !== 'rest'; k.pDone.hidden = p !== 'done'; k.pEnd.hidden = !(p === 'work' || p === 'rest');
+    $$('.restbtn', this.el).forEach(x => x.classList.toggle('last', +x.dataset.v === s.last));
   }
 };
 
-/* ================= 2. 番茄鐘 ================= */
-const pomo = {
-  id: 'pomodoro', name: '番茄鐘', icon: '🍅', cat: '專注學習', desc: '25 分鐘專注＋短休息循環，每 4 輪自動安排長休息',
-  html: `
-  <div class="card hero" data-k="hero" data-phase="focus">
-    <div class="tabs" data-k="tabs"><button data-act="mode" data-m="focus">專注</button><button data-act="mode" data-m="short">短休息</button><button data-act="mode" data-m="long">長休息</button></div>
-    <div class="ringwrap">${ringSVG('pomoRing')}<div class="inner"><div class="phase" data-k="phase">專注</div><div class="big mono" data-k="big">25:00</div></div></div>
-    <div class="dots" data-k="dots"></div>
-    <div class="sub" data-k="sub" style="margin-top:8px"></div>
-  </div>
-  <div class="row">
-    <button class="btn" data-act="reset">重設</button>
-    <button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button>
-    <button class="btn" data-act="skip">跳過 ⏭</button>
-  </div>
-  <div class="card cfg">
-    <label class="field">這一輪要做什麼（選填）<input data-k="task" placeholder="例：批改 301 作業"></label>
-  </div>
-  <details class="card cfg">
-    <summary>番茄鐘設定</summary>
-    <div class="field-row">
-      <label class="field">專注（分）<input type="number" min="1" data-c="focus"></label>
-      <label class="field">短休息（分）<input type="number" min="1" data-c="short"></label>
-      <label class="field">長休息（分）<input type="number" min="1" data-c="long"></label>
-      <label class="field">幾輪後長休息<input type="number" min="2" data-c="every"></label>
-    </div>
-    <label class="check"><input type="checkbox" data-c="auto"> 時間到自動開始下一段</label>
-  </details>`,
-  init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.cfg = Object.assign({ focus: 25, short: 5, long: 15, every: 4, auto: false }, store.get('pomoCfg', {}));
-    this.mode = 'focus'; this.clock = new Clock(); this.cycle = 0;
-    const t = store.get('pomoToday', null); this.today = t && t.d === todayKey() ? t : { d: todayKey(), n: 0 };
-    this.k.task.value = store.get('pomoTask', '');
-    this.k.task.addEventListener('input', () => store.set('pomoTask', this.k.task.value));
-    this.ring = $('#pomoRing', el);
-    $$('[data-c]', el).forEach(inp => {
-      if (inp.type === 'checkbox') inp.checked = this.cfg[inp.dataset.c]; else inp.value = this.cfg[inp.dataset.c];
-      inp.addEventListener('change', () => {
-        const c = inp.dataset.c; this.cfg[c] = inp.type === 'checkbox' ? inp.checked : Math.max(c === 'every' ? 2 : 1, Math.round(num(inp.value, this.cfg[c])));
-        if (inp.type !== 'checkbox') inp.value = this.cfg[c]; store.set('pomoCfg', this.cfg); this.renderDots(); this.render();
-      });
-    });
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
-    this.renderDots();
-  },
-  dur() { return this.cfg[this.mode] * 60000; },
-  remain() { return this.dur() - this.clock.ms; },
-  running() { return this.clock.on; },
-  toggle() { this.act('toggle'); },
-  act(a, b) {
-    if (a === 'toggle') { this.clock.toggle(); if (this.clock.on) Sound.beep(1, 880); }
-    else if (a === 'reset') this.clock.reset();
-    else if (a === 'skip') this.complete(true);
-    else if (a === 'mode') { this.mode = b.dataset.m; this.clock.reset(); this.renderDots(); }
-    this.render();
-  },
-  complete(skipped) {
-    const wasFocus = this.mode === 'focus', wasOn = this.clock.on;
-    if (wasFocus) {
-      if (!skipped) { this.cycle++; if (this.today.d !== todayKey()) this.today = { d: todayKey(), n: 0 }; this.today.n++; store.set('pomoToday', this.today); }
-      this.mode = !skipped && this.cycle % this.cfg.every === 0 ? 'long' : 'short';
-    } else this.mode = 'focus';
-    this.clock.reset();
-    if (skipped ? wasOn : this.cfg.auto) this.clock.play();
-    if (!skipped) alarm(wasFocus ? (this.mode === 'long' ? '完成一組番茄！來個長休息吧' : '專注結束，休息一下！') : '休息結束，回到專注！', { bell: wasFocus ? 2 : 1 });
-    this.renderDots(); this.render();
-  },
-  logic() { if (this.clock.on && this.remain() <= 0) this.complete(false); },
-  title() { return this.clock.on || this.clock.ms > 0 ? down(this.remain()) : null; },
-  renderDots() {
-    const n = this.cfg.every; let filled = this.cycle % n; if (this.cycle > 0 && filled === 0 && this.mode === 'long') filled = n;
-    this.k.dots.innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < filled ? 'on' : ''}"></i>`).join('');
-  },
-  render() {
-    const k = this.k, names = { focus: '專注', short: '短休息', long: '長休息' };
-    k.hero.dataset.phase = this.mode;
-    $$('button', k.tabs).forEach(b => b.classList.toggle('on', b.dataset.m === this.mode));
-    T(k.phase, names[this.mode] + (this.clock.ms > 0 && !this.clock.on ? '・暫停' : ''));
-    T(k.big, down(Math.max(0, this.remain()))); setRing(this.ring, this.clock.ms / this.dur());
-    T(k.toggle, this.clock.on ? '暫停' : (this.clock.ms > 0 ? '繼續' : '開始'));
-    T(k.sub, `今天已完成 ${this.today.d === todayKey() ? this.today.n : 0} 個番茄`);
-  }
-};
-
-/* ================= 3. 試教計時器 ================= */
-const COLORS = ['#e07a3f', '#d39e12', '#4fa262', '#2c8f8a', '#3b7bd0', '#8a63c9', '#c9578a', '#7d8a92', '#b5651d', '#5d8f2f'];
-const TEACH_DEFAULT = () => ({ total: 20, auto: true, warn: 30, steps: [
-  { name: '進場與問好', min: 1, on: true, c: 0 }, { name: '引起動機', min: 3, on: true, c: 1 },
-  { name: '連結先備經驗', min: 2, on: true, c: 2 }, { name: '主要內容', min: 7, on: true, c: 3 },
-  { name: '實作', min: 4, on: true, c: 4 }, { name: '統整', min: 2, on: true, c: 5 },
-  { name: '回家作業', min: 1, on: true, c: 6 }, { name: '其他', min: 0, on: false, c: 7 }] });
-const fmtMin = m => String(Math.round(m * 100) / 100);
-function roundHalves(vals, target) { // 四捨五入到 0.5 分，總和調整成 target
-  const r = vals.map(v => Math.round(v * 2) / 2); let diff = Math.round((target - r.reduce((a, b) => a + b, 0)) * 2) / 2;
-  if (diff && r.length) { const i = r.indexOf(Math.max(...r)); r[i] = Math.max(0, r[i] + diff); }
-  return r;
-}
-const teach = {
-  id: 'teach', name: '試教計時器', icon: '🧑‍🏫', cat: '教學課堂', desc: '設定總時間與教學步驟分配，上課時顯示目前步驟、剩餘時間與是否超時',
-  html: `
-  <div data-k="setup">
-    <div class="card">
-      <div class="field-row">
-        <label class="field">總時間（分鐘）<input type="number" min="1" step="1" data-k="total"></label>
-        <div class="chips" style="padding-bottom:4px">${[10, 15, 20, 25, 30, 45, 50].map(v => `<button class="chip" data-act="tot" data-v="${v}">${v} 分</button>`).join('')}</div>
-      </div>
-      <div class="alloc"><div class="alloc-bar" data-k="allocbar"></div><div class="alloc-text" data-k="alloctext"></div></div>
-      <div class="chips" style="margin-top:10px">
-        <button class="btn sm" data-act="fit">依比例縮放到總時間</button>
-        <button class="btn sm" data-act="even">平均分配</button>
-        <button class="btn sm" data-act="add">＋ 新增步驟</button>
-        <button class="btn sm danger" data-act="default">恢復預設步驟</button>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3>教學步驟與時間分配</h3><span class="hint" style="margin:0">勾選要使用的步驟，可改名稱、時間（可填 0.5 分）與順序</span></div>
-      <div class="steps" data-k="steps"></div>
-    </div>
-    <div class="card">
-      <div class="field-row" style="margin-bottom:0">
-        <label class="field">剩餘多少時提醒<select data-k="warn"><option value="0">不提醒</option><option value="15">15 秒</option><option value="30">30 秒</option><option value="60">1 分鐘</option></select></label>
-        <label class="check" style="margin:0 0 8px"><input type="checkbox" data-k="auto"> 步驟時間到自動進入下一步</label>
-      </div>
-      <p class="hint">不勾「自動進入」時，時間到會響鈴並顯示超時，由你按「下一步」切換——比較貼近實際試教。</p>
-    </div>
-    <div class="card">
-      <div class="card-head"><h3>我的方案</h3></div>
-      <div class="field-row" style="margin-bottom:0">
-        <label class="field grow">已儲存的方案<select data-k="preset"></select></label>
-        <div class="chips" style="padding-bottom:2px"><button class="btn sm" data-act="pload">載入</button><button class="btn sm" data-act="psave">另存方案</button><button class="btn sm danger" data-act="pdel">刪除</button></div>
-      </div>
-    </div>
-    <div class="row"><button class="btn primary xl" data-act="start">開始試教 ▶</button></div>
-  </div>
-
-  <div data-k="run" class="teach-run" hidden>
-    <div class="card hero" data-k="hero">
-      <div class="phase" data-k="idx">步驟 1 / 7</div>
-      <div class="stepname" data-k="name">—</div>
-      <div class="big mono" data-k="big">00:00</div>
-      <div class="bar"><i data-k="bar"></i></div>
-      <div class="sub" data-k="next"></div>
-    </div>
-    <div class="timeline" data-k="timeline"></div>
-    <div class="stats">
-      <div class="stat"><span class="l">已進行</span><span class="v mono" data-k="el">00:00</span></div>
-      <div class="stat"><span class="l">總剩餘</span><span class="v mono" data-k="left">00:00</span></div>
-      <div class="stat" data-k="schedbox"><span class="l">時間表</span><span class="v" data-k="sched" style="font-size:19px">照表進行</span></div>
-    </div>
-    <div class="row">
-      <button class="btn" data-act="prev" data-k="prev">◀ 上一步</button>
-      <button class="btn" data-act="pause" data-k="pause">暫停</button>
-      <button class="btn primary" data-act="next" data-k="nextbtn">下一步 ▶</button>
-      <button class="btn danger" data-act="stop">結束</button>
-    </div>
-    <p class="hint nofs" style="text-align:center">快捷鍵：空白鍵 暫停／繼續，← → 切換步驟，F 全螢幕（投影時好用）</p>
-  </div>
-
-  <div data-k="result" hidden>
-    <div class="card hero" data-phase="done"><div class="phase">試教結束</div><div class="big mono" data-k="rtotal">00:00</div><div class="sub" data-k="rsub"></div></div>
-    <div class="card">
-      <div class="card-head"><h3>各步驟預計 vs 實際</h3><button class="btn sm" data-act="rcopy">複製結果</button></div>
-      <table class="log"><thead><tr><th>步驟</th><th class="num">預計</th><th class="num">實際</th><th class="num">差異</th></tr></thead><tbody data-k="rtable"></tbody></table>
-    </div>
-    <div class="row"><button class="btn" data-act="tosetup">回到設定</button><button class="btn primary" data-act="start">再試一次</button></div>
-  </div>`,
-  init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.cfg = store.get('teachCfg', null) || TEACH_DEFAULT();
-    this.presets = store.get('teachPresets', {});
-    this.view = 'setup'; this.clock = new Clock(); this.run = null;
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act, b); });
-    this.k.total.addEventListener('input', () => { this.cfg.total = Math.max(0, num(this.k.total.value)); this.save(); this.renderAlloc(); });
-    this.k.auto.addEventListener('change', () => { this.cfg.auto = this.k.auto.checked; this.save(); });
-    this.k.warn.addEventListener('change', () => { this.cfg.warn = +this.k.warn.value; this.save(); });
-    const onField = e => {
-      const row = e.target.closest('.step-row'), f = e.target.dataset.f; if (!row || !f) return;
-      const st = this.cfg.steps[+row.dataset.i];
-      if (f === 'on') { st.on = e.target.checked; row.classList.toggle('off', !st.on); }
-      else if (f === 'name') st.name = e.target.value;
-      else if (f === 'min') st.min = Math.max(0, num(e.target.value));
-      this.save(); this.renderAlloc();
-    };
-    this.k.steps.addEventListener('input', onField); this.k.steps.addEventListener('change', onField);
-    this.renderSetup();
-  },
-  save() { store.set('teachCfg', this.cfg); },
-  running() { return this.view === 'run' && this.clock.on; },
-  toggle() { if (this.view === 'run') this.act('pause'); },
-  key(e) {
-    if (this.view !== 'run') return false;
-    if (e.key === 'ArrowRight') { this.act('next'); return true; }
-    if (e.key === 'ArrowLeft') { this.act('prev'); return true; }
-    return false;
-  },
-  async act(a, b) {
-    const c = this.cfg, st = c.steps;
-    switch (a) {
-      case 'tot': c.total = +b.dataset.v; break;
-      case 'fit': {
-        const on = st.filter(s => s.on && s.min > 0), sum = on.reduce((x, s) => x + s.min, 0);
-        if (!sum) { toast('請先為步驟設定時間'); return; }
-        const r = roundHalves(on.map(s => s.min * c.total / sum), c.total); on.forEach((s, i) => s.min = r[i]); break;
-      }
-      case 'even': {
-        const on = st.filter(s => s.on); if (!on.length) { toast('請先勾選步驟'); return; }
-        const r = roundHalves(on.map(() => c.total / on.length), c.total); on.forEach((s, i) => s.min = r[i]); break;
-      }
-      case 'add': { const used = st.map(s => s.c); let ci = 0; while (used.includes(ci) && ci < COLORS.length - 1) ci++; st.push({ name: '新步驟', min: 2, on: true, c: used.includes(ci) ? st.length : ci }); break; }
-      case 'default': if (!await ask('恢復預設的 8 個教學步驟與 20 分鐘配置？')) return; this.cfg = TEACH_DEFAULT(); break;
-      case 'up': case 'down': case 'del': {
-        const i = +b.closest('.step-row').dataset.i;
-        if (a === 'del') { if (st.length <= 1) return; st.splice(i, 1); }
-        else { const j = a === 'up' ? i - 1 : i + 1; if (j < 0 || j >= st.length) return; [st[i], st[j]] = [st[j], st[i]]; }
-        break;
-      }
-      case 'psave': {
-        const name = await ask('為這個方案命名：', { input: `${c.total} 分鐘試教`, ok: '儲存' }); if (!name) return;
-        this.presets[name] = JSON.parse(JSON.stringify(c)); store.set('teachPresets', this.presets); this.renderPresets(name); toast(`已儲存「${name}」`); return;
-      }
-      case 'pload': { const n = this.k.preset.value; if (!n || !this.presets[n]) { toast('還沒有儲存的方案'); return; } this.cfg = JSON.parse(JSON.stringify(this.presets[n])); toast(`已載入「${n}」`); break; }
-      case 'pdel': { const n = this.k.preset.value; if (!n || !this.presets[n]) return; if (!await ask(`刪除方案「${n}」？`, { ok: '刪除', danger: true })) return; delete this.presets[n]; store.set('teachPresets', this.presets); this.renderPresets(); return; }
-      case 'start': await this.start(); return;
-      case 'pause': this.clock.toggle(); this.renderRun(); return;
-      case 'next': this.next(); return;
-      case 'prev': if (this.run.idx > 0) this.go(this.run.idx - 1); return;
-      case 'stop': if (await ask('結束這次試教並查看結果？')) this.finish(); return;
-      case 'tosetup': this.show('setup'); this.renderSetup(); return;
-      case 'rcopy': this.copyResult(); return;
-      default: return;
-    }
-    this.save(); this.renderSetup();
-  },
-  async start() {
-    const steps = this.cfg.steps.filter(s => s.on && s.min > 0).map(s => ({ name: s.name.trim() || '（未命名）', dur: Math.round(s.min * 60000), c: s.c }));
-    if (!steps.length) { toast('請至少勾選一個步驟並設定時間'); return; }
-    const sum = steps.reduce((a, s) => a + s.dur, 0), target = this.cfg.total * 60000;
-    if (this.view === 'setup' && Math.abs(sum - target) >= 1000 && !await ask(`步驟加總是 ${fmtMin(sum / 60000)} 分鐘，和總時間 ${fmtMin(this.cfg.total)} 分鐘不同。\n要照步驟加總開始嗎？`, { ok: '照樣開始' })) return;
-    this.run = { steps, idx: 0, actual: steps.map(() => 0), warned: [], ended: [], plan: sum };
-    this.clock.reset(); this.clock.play(); this.show('run'); this.buildTimeline(); this.renderRun(); Sound.beep(1, 880);
-  },
-  show(v) { this.view = v; this.k.setup.hidden = v !== 'setup'; this.k.run.hidden = v !== 'run'; this.k.result.hidden = v !== 'result'; window.scrollTo(0, 0); },
-  go(i) {
-    const r = this.run; r.actual[r.idx] = this.clock.ms; r.idx = i; this.clock.set(r.actual[i]);
-    this.buildTimeline(); this.renderRun(); Sound.beep(1, 880, 0.12);
-  },
-  next() { const r = this.run; if (r.idx >= r.steps.length - 1) this.finish(); else this.go(r.idx + 1); },
-  finish() { const r = this.run; r.actual[r.idx] = this.clock.ms; this.clock.pause(); this.show('result'); this.renderResult(); Sound.bell(3); },
-  elapsed() { const r = this.run; return r.actual.reduce((a, x, i) => a + (i === r.idx ? this.clock.ms : x), 0); },
-  logic() {
-    if (this.view !== 'run' || !this.clock.on) return;
-    const r = this.run, st = r.steps[r.idx], rem = st.dur - this.clock.ms, w = this.cfg.warn * 1000;
-    if (w > 0 && !r.warned[r.idx] && st.dur > w && rem <= w && rem > 0) { r.warned[r.idx] = true; Sound.beep(2, 880, 0.1); toast(`「${st.name}」剩 ${w >= 60000 ? w / 60000 + ' 分鐘' : w / 1000 + ' 秒'}`); }
-    if (rem <= 0 && !r.ended[r.idx]) {
-      r.ended[r.idx] = true; const last = r.idx === r.steps.length - 1;
-      if (this.cfg.auto) { if (last) { this.finish(); return; } Sound.bell(1); flash(); this.go(r.idx + 1); toast(`下一步：${r.steps[r.idx].name}`); }
-      else alarm(last ? '最後一個步驟時間到，請準備結束' : `「${st.name}」時間到，請進入下一步`, { bell: 2 });
-    }
-  },
-  title() { if (this.view !== 'run') return null; const st = this.run.steps[this.run.idx]; return down(st.dur - this.clock.ms) + ' ' + st.name; },
-  render() { if (this.view === 'run') this.renderRun(); },
-  renderSetup() {
-    const c = this.cfg, n = c.steps.length;
-    this.k.total.value = c.total; this.k.auto.checked = c.auto; this.k.warn.value = String(c.warn);
-    $$('[data-act="tot"]', this.el).forEach(b => b.classList.toggle('on', +b.dataset.v === c.total));
-    this.k.steps.innerHTML = c.steps.map((s, i) => `<div class="step-row${s.on ? '' : ' off'}" data-i="${i}">
-      <input type="checkbox" data-f="on" ${s.on ? 'checked' : ''} aria-label="使用此步驟">
-      <span class="sw" style="background:${COLORS[s.c % COLORS.length]}"></span>
-      <input class="nm" data-f="name" value="${esc(s.name)}" aria-label="步驟名稱">
-      <span class="mn"><input type="number" data-f="min" min="0" step="0.5" value="${s.min}" aria-label="分鐘">分</span>
-      <span class="ops"><button class="ib" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="上移">↑</button><button class="ib" data-act="down" ${i === n - 1 ? 'disabled' : ''} aria-label="下移">↓</button><button class="ib" data-act="del" ${n <= 1 ? 'disabled' : ''} aria-label="刪除">✕</button></span></div>`).join('');
-    this.renderAlloc(); this.renderPresets(this.k.preset.value);
-  },
-  renderAlloc() {
-    const c = this.cfg, on = c.steps.filter(s => s.on && s.min > 0), sum = on.reduce((a, s) => a + s.min, 0), tot = c.total || 0, diff = tot - sum;
-    const scale = Math.max(sum, tot) || 1;
-    this.k.allocbar.innerHTML = on.map(s => `<div style="flex:${s.min / scale};background:${COLORS[s.c % COLORS.length]}" title="${esc(s.name)} ${fmtMin(s.min)} 分">${esc(s.name)}</div>`).join('') +
-      (diff > 0.001 ? `<div class="gap" style="flex:${diff / scale}">未分配</div>` : '');
-    const t = this.k.alloctext;
-    t.className = 'alloc-text ' + (Math.abs(diff) < 0.001 ? 'ok' : diff > 0 ? 'under' : 'over');
-    t.textContent = `已分配 ${fmtMin(sum)} / ${fmtMin(tot)} 分鐘` + (Math.abs(diff) < 0.001 ? '　✓ 剛好' : diff > 0 ? `　尚有 ${fmtMin(diff)} 分鐘未分配` : `　超出 ${fmtMin(-diff)} 分鐘`);
-    $$('[data-act="tot"]', this.el).forEach(b => b.classList.toggle('on', +b.dataset.v === c.total));
-  },
-  renderPresets(sel) {
-    const names = Object.keys(this.presets);
-    this.k.preset.innerHTML = names.length ? names.map(n => `<option ${n === sel ? 'selected' : ''}>${esc(n)}</option>`).join('') : '<option value="">（尚未儲存方案）</option>';
-  },
-  buildTimeline() {
-    const r = this.run;
-    this.k.timeline.innerHTML = r.steps.map((s, i) => `<div class="${i < r.idx ? 'done' : i === r.idx ? 'cur' : ''}" style="flex:${s.dur};background:${COLORS[s.c % COLORS.length]}" title="${esc(s.name)}">${esc(s.name)}</div>`).join('') + '<div class="now" data-now></div>';
-    this.k.now = $('[data-now]', this.k.timeline);
-    this.k.hero.style.setProperty('--c', COLORS[r.steps[r.idx].c % COLORS.length]);
-  },
-  renderRun() {
-    if (!this.run) return;
-    const r = this.run, k = this.k, st = r.steps[r.idx], ms = this.clock.ms, rem = st.dur - ms, n = r.steps.length, last = r.idx === n - 1;
-    const el = this.elapsed();
-    T(k.idx, `步驟 ${r.idx + 1} / ${n}` + (!this.clock.on ? '　·　已暫停' : '') + (rem <= 0 ? '　·　超時' : ''));
-    T(k.name, st.name); T(k.big, down(rem)); k.hero.classList.toggle('over', rem <= 0);
-    k.bar.style.width = Math.min(100, ms / st.dur * 100) + '%';
-    T(k.next, last ? '這是最後一個步驟' : `下一步：${r.steps[r.idx + 1].name}（${up(r.steps[r.idx + 1].dur)}）`);
-    T(k.el, up(el)); T(k.left, down(r.plan - el));
-    const restPlan = r.steps.slice(r.idx + 1).reduce((a, s) => a + s.dur, 0), proj = el + Math.max(0, rem) + restPlan - r.plan;
-    k.schedbox.className = 'stat ' + (proj > 5000 ? 'bad' : proj < -5000 ? 'good' : '');
-    T(k.sched, proj > 5000 ? `預計超時 ${up(proj)}` : proj < -5000 ? `預計提早 ${up(-proj)}` : '照表進行 ✓');
-    if (k.now) k.now.style.left = Math.min(100, el / r.plan * 100) + '%';
-    T(k.pause, this.clock.on ? '暫停' : '繼續'); k.prev.disabled = r.idx === 0; T(k.nextbtn, last ? '結束 ■' : '下一步 ▶');
-  },
-  resultRows() {
-    const r = this.run;
-    return r.steps.map((s, i) => { const reached = i <= r.idx; return { s, plan: s.dur, act: reached ? r.actual[i] : null }; });
-  },
-  renderResult() {
-    const r = this.run, rows = this.resultRows(), tot = r.actual.reduce((a, b) => a + b, 0), d = tot - r.plan;
-    T(this.k.rtotal, up(tot));
-    T(this.k.rsub, `預計 ${up(r.plan)}，` + (Math.abs(d) < 5000 ? '幾乎剛好 👍' : d > 0 ? `超時 ${up(d)}` : `提早 ${up(-d)} 結束`));
-    const dc = x => { if (x == null) return '—'; const dd = x.act - x.plan; if (Math.abs(dd) < 5000) return '±0'; return `<span class="${dd > 0 ? 'd-over' : 'd-under'}">${dd > 0 ? '+' : '−'}${up(Math.abs(dd))}</span>`; };
-    this.k.rtable.innerHTML = rows.map(x => `<tr><td><span class="sdot" style="background:${COLORS[x.s.c % COLORS.length]}"></span>${esc(x.s.name)}</td><td class="num">${up(x.plan)}</td><td class="num">${x.act == null ? '未進行' : up(x.act)}</td><td class="num">${dc(x)}</td></tr>`).join('') +
-      `<tr><td><b>合計</b></td><td class="num"><b>${up(r.plan)}</b></td><td class="num"><b>${up(tot)}</b></td><td class="num">${dc({ act: tot, plan: r.plan })}</td></tr>`;
-  },
-  copyResult() {
-    const r = this.run, rows = this.resultRows(), tot = r.actual.reduce((a, b) => a + b, 0);
-    const lines = [`試教計時結果 ${new Date().toLocaleString('zh-TW', { hour12: false })}`, `預計 ${up(r.plan)}　實際 ${up(tot)}`, '',
-      ...rows.map(x => `${x.s.name}：預計 ${up(x.plan)}　實際 ${x.act == null ? '未進行' : up(x.act)}`)];
-    copyText(lines.join('\n'));
-  }
-};
-
-/* ================= 4. 間歇訓練 HIIT ================= */
+/* ========== 2. HIIT ========== */
 const hiit = {
-  id: 'interval', name: '間歇訓練 HIIT', icon: '🔥', cat: '運動健身', desc: 'Tabata 等「運動／休息」交替循環，切換前 3 秒嗶聲倒數',
+  id: 'interval', name: '間歇訓練 HIIT', icon: '🔥', cat: '運動健身', desc: 'Tabata 等運動／休息自動循環，切換前 3 秒嗶聲',
   html: `
-  <div class="card hero" data-k="hero" data-phase="prep">
-    <div class="phase" data-k="phase">準備</div>
-    <div class="big mono" data-k="big">00:10</div>
-    <div class="sub" data-k="sub"></div>
-    <div class="bar"><i data-k="bar"></i></div>
-    <div class="sub" data-k="next"></div>
-  </div>
-  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="skip">跳過 ⏭</button></div>
-  <div class="card cfg">
-    <div class="lbl-line">快速套用</div>
-    <div class="chips" style="margin-bottom:12px">
-      <button class="chip" data-act="pre" data-v="10,20,10,8,0">Tabata 20/10 ×8</button>
-      <button class="chip" data-act="pre" data-v="10,30,30,10,0">30/30 ×10</button>
-      <button class="chip" data-act="pre" data-v="10,40,20,8,0">40/20 ×8</button>
-      <button class="chip" data-act="pre" data-v="10,45,15,6,60">45/15 ×6＋緩和</button>
-      <button class="chip" data-act="pre" data-v="5,60,0,10,0">EMOM 1 分 ×10</button>
-    </div>
-    <fieldset data-k="fs"><div class="field-row" style="margin-bottom:0">
-      <label class="field">準備（秒）<input type="number" min="0" data-c="prep"></label>
-      <label class="field">運動（秒）<input type="number" min="1" data-c="work"></label>
-      <label class="field">休息（秒）<input type="number" min="0" data-c="rest"></label>
-      <label class="field">回合數<input type="number" min="1" data-c="rounds"></label>
-      <label class="field">緩和（秒）<input type="number" min="0" data-c="cool"></label>
-    </div></fieldset>
-    <p class="hint" data-k="info"></p>
+  <div class="card hero" data-k="hero"><div class="phase" data-k="phase"></div><div class="big mono" data-k="big"></div><div class="sub" data-k="sub"></div><div class="bar"><i data-k="bar"></i></div></div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="tg">開始</button></div>
+  <div class="cfg" data-k="cfg">
+    <div class="chips center">${[['Tabata', 20, 10, 8], ['30/30', 30, 30, 10], ['40/20', 40, 20, 8], ['45/15', 45, 15, 6]].map(p => `<button class="chip" data-act="pre" data-v="${p.slice(1)}">${p[0]}${p[0] === 'Tabata' ? '' : ' ×' + p[3]}</button>`).join('')}</div>
+    <div class="custom">運動<input type="number" min="1" data-c="work">秒　休息<input type="number" min="0" data-c="rest">秒　共<input type="number" min="1" data-c="rounds">回合</div>
   </div>`,
   init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.cfg = Object.assign({ prep: 10, work: 20, rest: 10, rounds: 8, cool: 0 }, store.get('hiitCfg', {}));
-    this.clock = new Clock(); this.done = false;
-    $$('[data-c]', el).forEach(inp => inp.addEventListener('change', () => { const c = inp.dataset.c; this.cfg[c] = Math.max(+inp.min, Math.round(num(inp.value, this.cfg[c]))); this.apply(); }));
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
-    this.apply();
+    this.el = el; this.k = keys(el); this.cfg = Object.assign({ work: 20, rest: 10, rounds: 8 }, store.get('hiit', {})); this.clock = new Clock();
+    $$('[data-c]', el).forEach(i => i.addEventListener('change', () => { this.cfg[i.dataset.c] = Math.max(+i.min, Math.round(num(i.value, 1))); this.build(); }));
+    onAct(el, (a, b) => this.act(a, b)); this.build();
   },
-  apply() {
-    store.set('hiitCfg', this.cfg); $$('[data-c]', this.el).forEach(inp => inp.value = this.cfg[inp.dataset.c]);
-    const c = this.cfg, seq = [];
-    if (c.prep > 0) seq.push({ t: 'prep', d: c.prep });
-    for (let i = 1; i <= c.rounds; i++) { seq.push({ t: 'work', d: c.work, r: i }); if (i < c.rounds && c.rest > 0) seq.push({ t: 'rest', d: c.rest, r: i }); }
-    if (c.cool > 0) seq.push({ t: 'cool', d: c.cool });
-    let acc = 0; seq.forEach(p => { p.s = acc; acc += p.d * 1000; p.e = acc; });
-    this.seq = seq; this.totalMs = acc; this.reset();
-    T(this.k.info, `總長 ${up(acc)}，共 ${c.rounds} 回合`);
+  build() {
+    const c = this.cfg; store.set('hiit', c); $$('[data-c]', this.el).forEach(i => i.value = c[i.dataset.c]);
+    const seq = [{ t: 'prep', d: 5 }]; for (let i = 1; i <= c.rounds; i++) { seq.push({ t: 'work', d: c.work, r: i }); if (i < c.rounds && c.rest > 0) seq.push({ t: 'rest', d: c.rest, r: i }); }
+    let acc = 0; seq.forEach(p => { p.s = acc; acc += p.d * 1000; p.e = acc; }); this.seq = seq; this.totalMs = acc;
+    $$('[data-act="pre"]', this.el).forEach(b => b.classList.toggle('on', b.dataset.v === [c.work, c.rest, c.rounds].join(',')));
+    this.reset();
   },
   reset() { this.clock.reset(); this.done = false; this.lastIdx = -1; this.lastSec = null; this.render(); },
-  idxAt(ms) { return this.seq.findIndex(p => ms < p.e); },
+  idx() { return this.seq.findIndex(p => this.clock.ms < p.e); },
   running() { return this.clock.on; },
   toggle() { this.act('toggle'); },
   act(a, b) {
     if (a === 'toggle') { if (this.done) this.reset(); this.clock.toggle(); }
     else if (a === 'reset') this.reset();
-    else if (a === 'skip') { const i = this.idxAt(this.clock.ms); if (i >= 0) this.clock.set(this.seq[i].e); this.logic(); }
-    else if (a === 'pre') { const [prep, work, rest, rounds, cool] = b.dataset.v.split(',').map(Number); Object.assign(this.cfg, { prep, work, rest, rounds, cool }); this.apply(); }
+    else if (a === 'pre') { const [w, r, n] = b.dataset.v.split(',').map(Number); Object.assign(this.cfg, { work: w, rest: r, rounds: n }); this.build(); }
     this.render();
   },
   logic() {
-    if (this.done || this.clock.ms === 0) return;
-    const ms = this.clock.ms, i = this.idxAt(ms);
-    if (i === -1) { this.clock.pause(); this.clock.set(this.totalMs); this.done = true; alarm('間歇訓練完成！辛苦了', { bell: 3 }); this.render(); return; }
-    if (i !== this.lastIdx) {
-      const t = this.seq[i].t;
-      if (t === 'work') Sound.beep(2, 1046, 0.12); else if (t === 'rest') Sound.beep(1, 523, 0.35); else Sound.beep(1, 784, 0.2);
-      if (t === 'work' || t === 'rest') vib(150);
-      this.lastIdx = i; this.lastSec = null;
-    }
     if (!this.clock.on) return;
-    const sec = Math.ceil((this.seq[i].e - ms) / 1000);
+    const i = this.idx();
+    if (i === -1) { this.clock.pause(); this.clock.set(this.totalMs); this.done = true; alarm('間歇訓練完成！', 3); return; }
+    if (i !== this.lastIdx) { const t = this.seq[i].t; if (t === 'work') Sound.beep(2, 1046, 0.12); else if (t === 'rest') Sound.beep(1, 523, 0.35); this.lastIdx = i; this.lastSec = null; }
+    const sec = Math.ceil((this.seq[i].e - this.clock.ms) / 1000);
     if (sec <= 3 && sec >= 1 && sec !== this.lastSec) { this.lastSec = sec; Sound.beep(1, 660, 0.08); }
   },
-  title() { if (this.done || this.clock.ms === 0) return null; const i = this.idxAt(this.clock.ms); return i < 0 ? null : down(this.seq[i].e - this.clock.ms); },
-  render() {
-    const k = this.k, ms = this.clock.ms, names = { prep: '準備', work: '運動！', rest: '休息', cool: '緩和' };
-    k.fs.disabled = ms > 0 && !this.done;
-    T(k.toggle, this.done ? '再來一次' : this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始');
-    if (this.done) { k.hero.dataset.phase = 'done'; T(k.phase, '完成 🎉'); T(k.big, up(this.totalMs)); T(k.sub, `${this.cfg.rounds} 回合全部完成`); T(k.next, ''); k.bar.style.width = '100%'; return; }
-    const i = Math.max(0, this.idxAt(ms)), p = this.seq[i]; if (!p) return;
-    k.hero.dataset.phase = p.t; T(k.phase, names[p.t] + (ms > 0 && !this.clock.on ? '（暫停）' : ''));
-    T(k.big, down(p.e - ms)); k.bar.style.width = ((ms - p.s) / (p.d * 1000) * 100) + '%';
-    T(k.sub, (p.r ? `第 ${p.r} / ${this.cfg.rounds} 回合　·　` : '') + `總剩餘 ${down(this.totalMs - ms)}`);
-    const nx = this.seq[i + 1]; T(k.next, nx ? `接下來：${names[nx.t].replace('！', '')} ${nx.d} 秒` : '最後一段');
-  }
-};
-
-/* ================= 5. 倒數計時 ================= */
-const cd = {
-  id: 'countdown', name: '倒數計時', icon: '⏳', cat: '教學課堂', desc: '課堂活動、小組討論、上台準備等通用倒數，時間到響鈴並顯示超時',
-  html: `
-  <div class="card hero" data-k="hero">
-    <div class="phase" data-k="label">倒數計時</div>
-    <div class="ringwrap">${ringSVG('cdRing')}<div class="inner"><div class="big mono" data-k="big">05:00</div><div class="sub" data-k="sub"></div></div></div>
-  </div>
-  <div class="row"><button class="btn" data-act="sub">−1 分</button><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="add">+1 分</button></div>
-  <div class="card cfg">
-    <div class="chips" style="margin-bottom:12px">${[1, 2, 3, 5, 10, 15, 20, 30].map(v => `<button class="chip" data-act="pre" data-v="${v}">${v} 分</button>`).join('')}</div>
-    <div class="field-row" style="margin-bottom:0">
-      <label class="field">時<input type="number" min="0" data-t="h"></label>
-      <label class="field">分<input type="number" min="0" max="59" data-t="m"></label>
-      <label class="field">秒<input type="number" min="0" max="59" data-t="s"></label>
-      <label class="field grow">活動名稱（會顯示在上方）<input data-k="name" placeholder="例：小組討論"></label>
-    </div>
-  </div>`,
-  init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.dur = store.get('cdDur', 300000); this.clock = new Clock(); this.ended = false; this.ring = $('#cdRing', el);
-    this.k.name.value = store.get('cdName', '');
-    this.k.name.addEventListener('input', () => { store.set('cdName', this.k.name.value); this.render(); });
-    $$('[data-t]', el).forEach(inp => inp.addEventListener('change', () => {
-      const v = t => Math.max(0, Math.round(num($(`[data-t="${t}"]`, el).value)));
-      const d = (v('h') * 3600 + v('m') * 60 + v('s')) * 1000; if (d > 0) { this.dur = d; store.set('cdDur', d); this.clock.reset(); this.ended = false; } this.fillInputs(); this.render();
-    }));
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
-    this.fillInputs();
-  },
-  fillInputs() { const s = Math.round(this.dur / 1000); $('[data-t="h"]', this.el).value = Math.floor(s / 3600); $('[data-t="m"]', this.el).value = Math.floor(s % 3600 / 60); $('[data-t="s"]', this.el).value = s % 60; },
-  rem() { return this.dur - this.clock.ms; },
-  running() { return this.clock.on; },
-  toggle() { this.act('toggle'); },
-  act(a, b) {
-    if (a === 'toggle') { if (this.ended) { this.clock.reset(); this.ended = false; this.clock.play(); } else this.clock.toggle(); if (this.clock.on) Sound.beep(1, 880); }
-    else if (a === 'reset') { this.clock.reset(); this.ended = false; }
-    else if (a === 'add') { this.dur += 60000; if (this.rem() > 0) this.ended = false; }
-    else if (a === 'sub') { this.dur = Math.max(1000, this.dur - 60000); }
-    else if (a === 'pre') { this.dur = +b.dataset.v * 60000; this.clock.reset(); this.ended = false; }
-    if (a !== 'toggle' && a !== 'reset') { store.set('cdDur', this.dur); this.fillInputs(); }
-    this.render();
-  },
-  logic() { if (this.clock.on && this.rem() <= 0 && !this.ended) { this.ended = true; alarm(`${this.k.name.value.trim() || '倒數'}時間到！`, { bell: 3 }); } },
-  title() { return this.clock.ms > 0 ? down(this.rem()) : null; },
-  render() {
-    const k = this.k, r = this.rem();
-    T(k.label, this.k.name.value.trim() || '倒數計時'); T(k.big, down(r)); k.hero.classList.toggle('over', this.ended);
-    setRing(this.ring, this.clock.ms / this.dur);
-    T(k.sub, this.ended ? '時間到！' : this.clock.ms > 0 && !this.clock.on ? '已暫停' : `共 ${up(this.dur)}`);
-    T(k.toggle, this.ended ? '重新開始' : this.clock.on ? '暫停' : this.clock.ms > 0 ? '繼續' : '開始');
-    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v * 60000 === this.dur));
-  }
-};
-
-/* ================= 6. 碼錶 ================= */
-const sw = {
-  id: 'stopwatch', name: '碼錶', icon: '⏱️', cat: '通用工具', desc: '精確到 0.01 秒的正向計時，支援分圈並標出最快／最慢圈',
-  html: `
-  <div class="card hero"><div class="phase" data-k="phase">碼錶</div><div class="big mono" data-k="big">00:00.00</div></div>
-  <div class="row"><button class="btn xl" data-act="lap" data-k="lap" style="min-width:140px">分圈</button><button class="btn primary xl" data-act="toggle" data-k="toggle" style="min-width:140px">開始</button></div>
-  <div class="card" data-k="lapcard" hidden>
-    <div class="card-head"><h3>分圈紀錄</h3><button class="btn sm" data-act="copy">複製</button></div>
-    <table class="log"><thead><tr><th>圈</th><th class="num">單圈</th><th class="num">累計</th></tr></thead><tbody data-k="laps"></tbody></table>
-  </div>`,
-  init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.clock = new Clock(); this.laps = [];
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act); });
-  },
-  running() { return this.clock.on; },
-  toggle() { this.act('toggle'); },
-  act(a) {
-    if (a === 'toggle') this.clock.toggle();
-    else if (a === 'lap') { if (this.clock.on) this.laps.push(this.clock.ms); else { this.clock.reset(); this.laps = []; } this.renderLaps(); }
-    else if (a === 'copy') { copyText(this.laps.map((t, i) => `第${i + 1}圈　${cs(t - (this.laps[i - 1] || 0))}　累計 ${cs(t)}`).join('\n')); }
-    this.render();
-  },
-  renderLaps() {
-    const L = this.laps, k = this.k; k.lapcard.hidden = !L.length; if (!L.length) { k.laps.innerHTML = ''; return; }
-    const splits = L.map((t, i) => t - (L[i - 1] || 0)), mx = Math.max(...splits), mn = Math.min(...splits);
-    k.laps.innerHTML = `<tr class="cur"><td>${L.length + 1}</td><td class="num" data-cur>—</td><td class="num">進行中</td></tr>` +
-      splits.map((s, i) => `<tr class="${L.length >= 3 && s === mn ? 'best' : L.length >= 3 && s === mx ? 'worst' : ''}"><td>${i + 1}</td><td class="num">${cs(s)}</td><td class="num">${cs(L[i])}</td></tr>`).reverse().join('');
-    this.curCell = $('[data-cur]', k.laps);
-  },
-  logic() {},
-  title() { return this.clock.ms > 0 ? up(this.clock.ms) : null; },
+  title() { const i = this.idx(); return this.clock.ms > 0 && !this.done && i >= 0 ? down(this.seq[i].e - this.clock.ms) : null; },
   render() {
     const k = this.k, ms = this.clock.ms;
-    T(k.big, cs(ms)); T(k.phase, this.clock.on ? '計時中' : ms > 0 ? '已暫停' : '碼錶');
-    T(k.toggle, this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始');
-    T(k.lap, this.clock.on || ms === 0 ? '分圈' : '重設'); k.lap.disabled = ms === 0;
-    if (this.curCell && this.laps.length) T(this.curCell, cs(ms - this.laps[this.laps.length - 1]));
+    k.cfg.hidden = ms > 0 && !this.done;
+    T(k.tg, this.done ? '再來一次' : this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始');
+    if (this.done) { k.hero.dataset.phase = ''; T(k.phase, '完成 🎉'); T(k.big, up(this.totalMs)); T(k.sub, `${this.cfg.rounds} 回合全部完成`); k.bar.style.width = '100%'; return; }
+    const p = this.seq[Math.max(0, this.idx())];
+    k.hero.dataset.phase = p.t; T(k.phase, { prep: '預備', work: '運動！', rest: '休息' }[p.t] + (ms > 0 && !this.clock.on ? '（暫停）' : ''));
+    T(k.big, down(p.e - ms)); k.bar.style.width = ((ms - p.s) / (p.d * 1000) * 100) + '%';
+    T(k.sub, (p.r ? `第 ${p.r} / ${this.cfg.rounds} 回合・` : '') + `總剩餘 ${down(this.totalMs - ms)}`);
   }
 };
 
-/* ================= 7. 考試時鐘 ================= */
-const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-const exam = {
-  id: 'exam', name: '考試時鐘', icon: '📝', cat: '教學課堂', desc: '投影用大時鐘：顯示科目、考試起訖、剩餘時間，結束前自動響鈴提醒',
+/* ========== 3. 番茄鐘 ========== */
+const pomo = {
+  id: 'pomodoro', name: '番茄鐘', icon: '🍅', cat: '學習專注', desc: '專注與休息自動輪替，每 4 輪一次長休息',
   html: `
-  <div class="card exam-hero">
-    <div class="exam-date" data-k="date"></div>
-    <div class="exam-clock mono" data-k="clock">00:00:00</div>
-    <p class="exam-subject" data-k="subj">考試</p>
-    <div class="exam-range mono" data-k="range"></div>
-    <div class="exam-status" data-k="status"><span class="l" data-k="sl"></span><span class="v mono" data-k="sv"></span></div>
-    <div class="bar" style="--c:var(--accent)"><i data-k="bar"></i></div>
-    <div class="exam-notes" data-k="notes"></div>
+  <div class="card hero" data-k="hero">
+    <div class="ringwrap">${ringSVG('pomoRing')}<div class="inner"><div class="phase" data-k="phase"></div><div class="big mono" data-k="big"></div></div></div>
+    <div class="dots" data-k="dots"></div><div class="sub" data-k="sub" style="margin-top:6px"></div>
   </div>
-  <details class="card cfg" open>
-    <summary>考試設定</summary>
-    <div class="field-row">
-      <label class="field grow">科目／場次<input data-c="subject" placeholder="例：數理及資訊學科能力競賽－數學"></label>
-      <label class="field">開始時間<input type="time" data-c="start"></label>
-      <label class="field">結束時間<input type="time" data-c="end"></label>
-    </div>
-    <div class="lbl-line">從現在開始考：</div>
-    <div class="chips" style="margin-bottom:12px">${[30, 40, 45, 50, 60, 90, 100, 120].map(v => `<button class="chip" data-act="now" data-v="${v}">${v} 分鐘</button>`).join('')}</div>
-    <div class="field-row">
-      <label class="field">第一次提醒（剩幾分）<input type="number" min="0" data-c="warn1"></label>
-      <label class="field">第二次提醒（剩幾分）<input type="number" min="0" data-c="warn2"></label>
-    </div>
-    <label class="field">注意事項（顯示在時鐘下方，可多行）<textarea rows="3" data-c="notes" placeholder="例：請關閉手機並放入書包&#10;作答完畢請檢查姓名、准考證號碼"></textarea></label>
-    <p class="hint">開始、結束前提醒與結束時都會響鈴。設定好後按右上角 ⛶ 全螢幕投影，設定區會自動隱藏。</p>
-  </details>`,
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="tg">開始</button></div>
+  <div class="chips center cfg">${[[25, 5], [50, 10], [15, 3]].map(p => `<button class="chip" data-act="pre" data-v="${p}">專注 ${p[0]}／休息 ${p[1]}</button>`).join('')}</div>`,
   init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    const now = new Date(), s = new Date(Math.ceil(now.getTime() / 300000) * 300000);
-    this.cfg = Object.assign({ subject: '', start: hm(s), end: hm(new Date(s.getTime() + 50 * 60000)), warn1: 15, warn2: 5, notes: '' }, store.get('examCfg', {}));
-    this.fired = {};
-    $$('[data-c]', el).forEach(inp => {
-      inp.value = this.cfg[inp.dataset.c];
-      inp.addEventListener('input', () => { const c = inp.dataset.c; this.cfg[c] = inp.type === 'number' ? Math.max(0, num(inp.value)) : inp.value; store.set('examCfg', this.cfg); this.fired = {}; this.render(); });
-    });
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.el = el; this.k = keys(el); this.ring = $('#pomoRing', el);
+    this.cfg = Object.assign({ focus: 25, brk: 5 }, store.get('pomo', {})); this.mode = 'focus'; this.cycle = 0; this.clock = new Clock();
+    const t = store.get('pomoToday', null); this.today = t && t.d === todayKey() ? t : { d: todayKey(), n: 0 };
+    onAct(el, (a, b) => this.act(a, b));
   },
+  dur() { return (this.mode === 'focus' ? this.cfg.focus : this.mode === 'long' ? this.cfg.brk * 3 : this.cfg.brk) * 60000; },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
   act(a, b) {
-    if (a === 'now') { const n = new Date(); n.setSeconds(0, 0); this.cfg.start = hm(n); this.cfg.end = hm(new Date(n.getTime() + b.dataset.v * 60000)); store.set('examCfg', this.cfg); this.fired = {};
-      $('[data-c="start"]', this.el).value = this.cfg.start; $('[data-c="end"]', this.el).value = this.cfg.end; this.render(); }
+    if (a === 'toggle') this.clock.toggle();
+    else if (a === 'reset') { this.clock.reset(); this.mode = 'focus'; this.cycle = 0; }
+    else if (a === 'pre') { const [f, r] = b.dataset.v.split(',').map(Number); this.cfg = { focus: f, brk: r }; store.set('pomo', this.cfg); this.clock.reset(); this.mode = 'focus'; }
+    this.render();
   },
-  times() {
-    const now = new Date(), mk = v => { const [h, m] = String(v || '0:0').split(':').map(Number); const d = new Date(now); d.setHours(h || 0, m || 0, 0, 0); return d.getTime(); };
-    const s = mk(this.cfg.start); let e = mk(this.cfg.end); if (e <= s) e += 86400000; return { s, e };
-  },
-  running() { return current === 'exam'; },
   logic() {
-    if (current !== 'exam') return;
-    const { s, e } = this.times(), now = Date.now(), rem = e - now, f = this.fired, win = 60000;
-    const once = (key, cond, fn) => { if (cond && !f[key]) { f[key] = true; fn(); } };
-    once('start' + s, now >= s && now < s + win && now < e, () => alarm('考試開始', { bell: 1 }));
-    for (const [w, n] of [[this.cfg.warn1, 1], [this.cfg.warn2, 2]]) { const W = w * 60000; if (W > 0) once(`w${W}-${s}`, now >= s && rem <= W && rem > W - win, () => alarm(`距離考試結束還有 ${Math.ceil(rem / 60000)} 分鐘`, { bell: n })); }
-    once('end' + s, now >= e && now < e + win, () => alarm('考試時間到，請停止作答', { bell: 3 }));
+    if (!this.clock.on || this.clock.ms < this.dur()) return;
+    const wasFocus = this.mode === 'focus';
+    if (wasFocus) { this.cycle++; if (this.today.d !== todayKey()) this.today = { d: todayKey(), n: 0 }; this.today.n++; store.set('pomoToday', this.today); this.mode = this.cycle % 4 === 0 ? 'long' : 'short'; }
+    else this.mode = 'focus';
+    this.clock.reset(); this.clock.play();
+    alarm(wasFocus ? (this.mode === 'long' ? '完成 4 輪！長休息時間' : '專注結束，休息一下') : '休息結束，回到專注', wasFocus ? 2 : 1);
   },
-  title() { return null; },
+  title() { return this.clock.ms > 0 ? down(this.dur() - this.clock.ms) : null; },
   render() {
-    const k = this.k, now = new Date(), { s, e } = this.times(), t = now.getTime();
-    T(k.date, now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }));
-    T(k.clock, `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
-    T(k.subj, this.cfg.subject.trim() || '考試'); T(k.range, `考試時間 ${this.cfg.start} – ${this.cfg.end}`);
-    let l, v, cls = '', p = 0;
-    if (t < s) { l = '距離開始'; v = down(s - t); }
-    else if (t < e) { const rem = e - t; l = '剩餘時間'; v = down(rem); p = (t - s) / (e - s) * 100;
-      cls = this.cfg.warn2 > 0 && rem <= this.cfg.warn2 * 60000 ? 'bad' : this.cfg.warn1 > 0 && rem <= this.cfg.warn1 * 60000 ? 'warn' : ''; }
-    else { l = '考試已結束'; v = '停止作答'; p = 100; cls = 'bad'; }
-    T(k.sl, l); T(k.sv, v); k.status.className = 'exam-status ' + cls; k.bar.style.width = p + '%'; T(k.notes, this.cfg.notes);
+    const k = this.k;
+    k.hero.dataset.phase = this.mode === 'focus' ? 'work' : 'rest';
+    T(k.phase, { focus: '專注', short: '休息', long: '長休息' }[this.mode] + (this.clock.ms > 0 && !this.clock.on ? '・暫停' : ''));
+    T(k.big, down(Math.max(0, this.dur() - this.clock.ms))); setRing(this.ring, this.clock.ms / this.dur());
+    T(k.tg, this.clock.on ? '暫停' : this.clock.ms > 0 ? '繼續' : '開始');
+    const f = this.cycle % 4 || (this.cycle && this.mode === 'long' ? 4 : 0), h = [0, 1, 2, 3].map(i => `<i class="${i < f ? 'on' : ''}"></i>`).join('');
+    if (k.dots.innerHTML !== h) k.dots.innerHTML = h;
+    T(k.sub, `今天完成 ${this.today.d === todayKey() ? this.today.n : 0} 個番茄`);
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', c.dataset.v === `${this.cfg.focus},${this.cfg.brk}`));
   }
 };
 
-/* ================= 8. 發表計時 ================= */
-const speech = {
-  id: 'speech', name: '發表計時', icon: '🎤', cat: '教學課堂', desc: '專題、科展、口頭報告用：綠→黃→紅燈號，時間快到與時間到自動按鈴',
+/* ========== 4. 呼吸放鬆 ========== */
+const BREATH = [
+  { n: '方塊呼吸', seq: [['吸氣', 4], ['停住', 4], ['吐氣', 4], ['停住', 4]] },
+  { n: '4-7-8 助眠', seq: [['吸氣', 4], ['停住', 7], ['吐氣', 8]] },
+  { n: '放鬆 4-6', seq: [['吸氣', 4], ['吐氣', 6]] }];
+const breath = {
+  id: 'breath', name: '呼吸放鬆', icon: '🫧', cat: '學習專注', desc: '跟著圓圈吸氣、停住、吐氣，考試或上台前平穩情緒',
   html: `
-  <div class="card hero speech-hero" data-k="hero" data-light="idle">
-    <div class="phase" data-k="phase">準備</div>
-    <div class="big mono" data-k="big">00:00</div>
+  <div class="card hero">
+    <div class="breath"><div class="orb" data-k="orb"></div><div class="txt"><b data-k="ph">準備</b><span class="mono" data-k="sec"></span></div></div>
     <div class="sub" data-k="sub"></div>
-    <div class="lights"><i class="g" data-k="lg"></i><i class="y" data-k="ly"></i><i class="r" data-k="lr"></i></div>
   </div>
-  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="mode" data-k="mode">改顯示剩餘</button></div>
-  <div class="card cfg">
-    <div class="chips" style="margin-bottom:12px">${[3, 5, 7, 8, 10, 12, 15].map(v => `<button class="chip" data-act="pre" data-v="${v}">${v} 分鐘</button>`).join('')}</div>
-    <div class="field-row" style="margin-bottom:0">
-      <label class="field">發表時限（分）<input type="number" min="1" step="0.5" data-c="min"></label>
-      <label class="field">剩幾分鐘亮黃燈＋一聲鈴<input type="number" min="0" step="0.5" data-c="warn"></label>
+  <div class="row"><button class="btn primary xl" data-act="toggle" data-k="tg">開始</button></div>
+  <div class="cfg"><div class="chips center">${BREATH.map((b, i) => `<button class="chip" data-act="pat" data-v="${i}">${b.n}</button>`).join('')}</div>
+  <div class="chips center">${[1, 3, 5, 10].map(v => `<button class="chip" data-act="len" data-v="${v}">${v} 分鐘</button>`).join('')}</div></div>`,
+  init(el) { this.el = el; this.k = keys(el); this.cfg = Object.assign({ pat: 0, len: 3 }, store.get('breath', {})); this.clock = new Clock(); this.lastPh = -1; onAct(el, (a, b) => this.act(a, b)); },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') { if (this.clock.on) { this.clock.reset(); } else { this.clock.reset(); this.lastPh = -1; this.clock.play(); } }
+    else { this.cfg[a] = +b.dataset.v; store.set('breath', this.cfg); this.clock.reset(); }
+    this.render();
+  },
+  pos() {
+    const seq = BREATH[this.cfg.pat].seq, cyc = seq.reduce((a, s) => a + s[1], 0) * 1000; let t = this.clock.ms % cyc;
+    for (let i = 0; i < seq.length; i++) { const d = seq[i][1] * 1000; if (t < d) return { i, seq, p: t / d, rem: d - t }; t -= d; }
+    return { i: 0, seq, p: 0, rem: seq[0][1] * 1000 };
+  },
+  logic() {
+    if (!this.clock.on) return;
+    if (this.clock.ms >= this.cfg.len * 60000) { this.clock.reset(); alarm('練習結束，做得很好', 1); return; }
+    const { i, seq } = this.pos(), key = i + '-' +Math.floor(this.clock.ms / (seq.reduce((a, s) => a + s[1], 0) * 1000));
+    if (key !== this.lastPh) { this.lastPh = key; Sound.soft(seq[i][0] === '吸氣' ? 523 : seq[i][0] === '吐氣' ? 392 : 440); }
+  },
+  title() { return this.clock.on ? this.pos().seq[this.pos().i][0] : null; },
+  render() {
+    const k = this.k;
+    $$('[data-act="pat"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.cfg.pat));
+    $$('[data-act="len"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.cfg.len));
+    T(k.tg, this.clock.on ? '停止' : '開始');
+    if (!this.clock.on) { T(k.ph, '準備'); T(k.sec, ''); k.orb.style.transform = 'scale(.55)'; T(k.sub, `${BREATH[this.cfg.pat].n}・${this.cfg.len} 分鐘`); return; }
+    const { i, seq, p, rem } = this.pos(), name = seq[i][0];
+    let sc = .55;
+    if (name === '吸氣') sc = .55 + .45 * p; else if (name === '吐氣') sc = 1 - .45 * p; else sc = (i > 0 && seq[i - 1][0] === '吸氣') ? 1 : .55;
+    k.orb.style.transform = `scale(${sc})`; T(k.ph, name); T(k.sec, String(Math.ceil(rem / 1000)));
+    T(k.sub, `剩 ${down(this.cfg.len * 60000 - this.clock.ms)}`);
+  }
+};
+
+/* ========== 5. 試教計時器 ========== */
+const COLORS = ['#e07a3f', '#d39e12', '#4fa262', '#2c8f8a', '#3b7bd0', '#8a63c9', '#c9578a', '#7d8a92', '#b5651d', '#5d8f2f'];
+const TEACH_DEFAULT = () => ({ total: 1200, steps: [['進場與問好', 60], ['引起動機', 180], ['連結先備經驗', 120], ['主要內容', 420], ['實作', 240], ['統整', 120], ['回家作業', 60], ['其他', 0]].map(([name, sec], c) => ({ name, sec, c })) });
+const teach = {
+  id: 'teach', name: '試教計時器', icon: '🧑‍🏫', cat: '教學課堂', desc: '把總時間分配給各教學步驟（精確到秒），上課時大字顯示目前步驟',
+  html: `
+  <div data-k="setup">
+    <div class="card">
+      <div class="card-head"><h3>總時間</h3>${mmssHTML('tt')}</div>
+      <div class="chips">${[10, 15, 20, 30, 45, 50].map(v => `<button class="chip" data-act="tot" data-v="${v}">${v} 分</button>`).join('')}</div>
+      <div class="alloc-bar" data-k="allocbar"></div><div class="alloc-text" data-k="alloctext"></div>
     </div>
-    <label class="check"><input type="checkbox" data-c="rep"> 超時後每 30 秒再提醒（三聲鈴）</label>
-    <p class="hint">時間快到：一聲鈴；時間到：兩聲鈴（比照一般發表會習慣）。</p>
+    <div class="card">
+      <div class="card-head"><h3>教學步驟</h3><button class="btn sm" data-act="fit">依比例分配到總時間</button></div>
+      <div class="steps" data-k="steps"></div>
+      <div class="chips" style="margin-top:10px"><button class="btn sm" data-act="add">＋ 新增步驟</button><button class="btn sm" data-act="default">恢復預設</button></div>
+      <p class="hint">時間設為 0 的步驟會自動略過</p>
+    </div>
+    <div class="row"><button class="btn primary xl" data-act="start">開始試教 ▶</button></div>
+  </div>
+  <div data-k="run" class="teach-run" hidden>
+    <div class="card hero" data-k="hero">
+      <div class="phase" data-k="idx"></div><div class="stepname" data-k="name"></div>
+      <div class="big mono" data-k="big"></div><div class="bar"><i data-k="bar"></i></div><div class="sub" data-k="next"></div>
+    </div>
+    <div class="timeline" data-k="timeline"></div>
+    <div class="row"><button class="btn" data-act="pause" data-k="pause">暫停</button><button class="btn primary xl" data-act="next" data-k="nextbtn">下一步 ▶</button></div>
+    <div class="row cfg"><button class="btn sm" data-act="prev" data-k="prev">◀ 上一步</button><button class="btn sm danger" data-act="stop">結束試教</button></div>
+  </div>
+  <div data-k="result" hidden>
+    <div class="card hero"><div class="phase">試教結束</div><div class="big mono" data-k="rtotal"></div><div class="sub" data-k="rsub"></div></div>
+    <div class="card"><table class="log"><thead><tr><th>步驟</th><th class="num">預計</th><th class="num">實際</th><th class="num">差異</th></tr></thead><tbody data-k="rtable"></tbody></table></div>
+    <div class="row"><button class="btn" data-act="tosetup">回到設定</button><button class="btn primary" data-act="start">再試一次</button></div>
   </div>`,
   init(el) {
-    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
-    this.cfg = Object.assign({ min: 5, warn: 1, rep: false, mode: 'up' }, store.get('speechCfg', {}));
-    this.clock = new Clock(); this.f = {};
-    $$('[data-c]', el).forEach(inp => {
-      if (inp.type === 'checkbox') inp.checked = this.cfg[inp.dataset.c]; else inp.value = this.cfg[inp.dataset.c];
-      inp.addEventListener('change', () => { const c = inp.dataset.c; this.cfg[c] = inp.type === 'checkbox' ? inp.checked : Math.max(c === 'min' ? 0.5 : 0, num(inp.value, this.cfg[c])); this.saveCfg(); });
+    this.el = el; this.k = keys(el);
+    this.cfg = store.get('teach', null) || TEACH_DEFAULT(); this.view = 'setup'; this.clock = new Clock(); this.run = null;
+    onAct(el, (a, b) => this.act(a, b));
+    $$('[data-tt]', el).forEach(i => i.addEventListener('input', () => { this.cfg.total = readMMSS(el, 'tt'); this.save(); this.renderAlloc(); }));
+    $$('[data-tt]', el).forEach(i => i.addEventListener('change', () => fillMMSS(el, 'tt', this.cfg.total)));
+    this.k.steps.addEventListener('input', e => {
+      const row = e.target.closest('.step-row'); if (!row) return; const st = this.cfg.steps[+row.dataset.i];
+      if (e.target.dataset.f === 'name') st.name = e.target.value; else { st.sec = readMMSS(row, 'f'); row.classList.toggle('zero', !st.sec); }
+      this.save(); this.renderAlloc();
     });
-    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.k.steps.addEventListener('change', e => { const row = e.target.closest('.step-row'); if (row && e.target.dataset.f !== 'name') fillMMSS(row, 'f', this.cfg.steps[+row.dataset.i].sec); });
+    this.renderSetup();
   },
-  saveCfg() { store.set('speechCfg', this.cfg); $$('[data-c]', this.el).forEach(inp => { if (inp.type !== 'checkbox') inp.value = this.cfg[inp.dataset.c]; }); this.render(); },
+  save() { store.set('teach', this.cfg); },
+  running() { return this.view === 'run' && this.clock.on; },
+  toggle() { if (this.view === 'run') this.act('pause'); },
+  key(e) { if (this.view !== 'run') return false; if (e.key === 'ArrowRight') this.act('next'); else if (e.key === 'ArrowLeft') this.act('prev'); else return false; return true; },
+  async act(a, b) {
+    const c = this.cfg, st = c.steps;
+    switch (a) {
+      case 'tot': c.total = +b.dataset.v * 60; break;
+      case 'fit': {
+        const on = st.filter(s => s.sec > 0), sum = on.reduce((x, s) => x + s.sec, 0); if (!sum) return toast('請先替步驟設定時間');
+        on.forEach(s => s.sec = Math.round(s.sec * c.total / sum / 5) * 5);
+        const diff = c.total - on.reduce((x, s) => x + s.sec, 0), big = on.reduce((m, s) => s.sec > m.sec ? s : m, on[0]); big.sec = Math.max(0, big.sec + diff); break;
+      }
+      case 'add': st.push({ name: '新步驟', sec: 120, c: st.length }); break;
+      case 'default': if (!await ask('恢復預設的教學步驟（20 分鐘）？')) return; this.cfg = TEACH_DEFAULT(); break;
+      case 'up': case 'del': {
+        const i = +b.closest('.step-row').dataset.i;
+        if (a === 'del') { if (st.length > 1) st.splice(i, 1); } else if (i > 0) [st[i - 1], st[i]] = [st[i], st[i - 1]];
+        break;
+      }
+      case 'start': return this.start();
+      case 'pause': this.clock.toggle(); return this.renderRun();
+      case 'next': return this.run.idx >= this.run.steps.length - 1 ? this.finish() : this.go(this.run.idx + 1);
+      case 'prev': if (this.run.idx > 0) this.go(this.run.idx - 1); return;
+      case 'stop': if (await ask('結束這次試教並查看結果？')) this.finish(); return;
+      case 'tosetup': this.show('setup'); return this.renderSetup();
+      default: return;
+    }
+    this.save(); this.renderSetup();
+  },
+  async start() {
+    const steps = this.cfg.steps.filter(s => s.sec > 0).map(s => ({ name: s.name.trim() || '（未命名）', dur: s.sec * 1000, c: s.c }));
+    if (!steps.length) return toast('請至少替一個步驟設定時間');
+    const sum = steps.reduce((a, s) => a + s.dur, 0);
+    if (this.view === 'setup' && sum !== this.cfg.total * 1000 && !await ask(`步驟加總 ${up(sum)}，和總時間 ${up(this.cfg.total * 1000)} 不同。\n照步驟加總開始嗎？`, '開始')) return;
+    this.run = { steps, idx: 0, actual: steps.map(() => 0), warned: [], ended: [], plan: sum };
+    this.clock.reset(); this.clock.play(); this.show('run'); this.buildTimeline(); this.renderRun(); Sound.beep(1, 880);
+  },
+  show(v) { this.view = v; this.k.setup.hidden = v !== 'setup'; this.k.run.hidden = v !== 'run'; this.k.result.hidden = v !== 'result'; window.scrollTo(0, 0); },
+  go(i) { const r = this.run; r.actual[r.idx] = this.clock.ms; r.idx = i; this.clock.set(r.actual[i]); this.buildTimeline(); this.renderRun(); Sound.beep(1, 880, 0.12); },
+  finish() { const r = this.run; r.actual[r.idx] = this.clock.ms; this.clock.pause(); this.show('result'); this.renderResult(); Sound.bell(3); },
+  logic() {
+    if (this.view !== 'run' || !this.clock.on) return;
+    const r = this.run, st = r.steps[r.idx], rem = st.dur - this.clock.ms;
+    if (st.dur > 60000 && rem <= 30000 && rem > 0 && !r.warned[r.idx]) { r.warned[r.idx] = true; Sound.beep(2, 880, 0.1); toast(`「${st.name}」剩 30 秒`); }
+    if (rem <= 0 && !r.ended[r.idx]) { r.ended[r.idx] = true; alarm(r.idx === r.steps.length - 1 ? '時間到，請準備結束' : `「${st.name}」時間到，請進入下一步`, 2); }
+  },
+  title() { if (this.view !== 'run') return null; const st = this.run.steps[this.run.idx]; return `${down(st.dur - this.clock.ms)} ${st.name}`; },
+  render() { if (this.view === 'run') this.renderRun(); },
+  renderSetup() {
+    const c = this.cfg; fillMMSS(this.el, 'tt', c.total);
+    this.k.steps.innerHTML = c.steps.map((s, i) => `<div class="step-row${s.sec ? '' : ' zero'}" data-i="${i}">
+      <span class="sw" style="background:${COLORS[s.c % COLORS.length]}"></span>
+      <input class="nm" data-f="name" value="${esc(s.name)}" aria-label="步驟名稱">
+      <span class="mmss"><input type="number" min="0" data-f="m" value="${Math.floor(s.sec / 60)}" aria-label="分">分<input type="number" min="0" max="59" data-f="s" value="${s.sec % 60}" aria-label="秒">秒</span>
+      <span class="ops"><button class="ib" data-act="up" ${i ? '' : 'disabled'} aria-label="上移">↑</button><button class="ib" data-act="del" ${c.steps.length > 1 ? '' : 'disabled'} aria-label="刪除">✕</button></span></div>`).join('');
+    this.renderAlloc();
+  },
+  renderAlloc() {
+    const c = this.cfg, on = c.steps.filter(s => s.sec > 0), sum = on.reduce((a, s) => a + s.sec, 0), diff = c.total - sum, scale = Math.max(sum, c.total) || 1;
+    this.k.allocbar.innerHTML = on.map(s => `<div style="flex:${s.sec / scale};background:${COLORS[s.c % COLORS.length]}" title="${esc(s.name)}">${esc(s.name)}</div>`).join('') + (diff > 0 ? `<div class="gap" style="flex:${diff / scale}">未分配</div>` : '');
+    const t = this.k.alloctext; t.className = 'alloc-text ' + (!diff ? 'ok' : diff > 0 ? 'under' : 'over');
+    t.textContent = `已分配 ${up(sum * 1000)} / ${up(c.total * 1000)}` + (!diff ? '　✓ 剛好' : diff > 0 ? `　還有 ${up(diff * 1000)} 未分配` : `　超出 ${up(-diff * 1000)}`);
+    $$('[data-act="tot"]', this.el).forEach(x => x.classList.toggle('on', +x.dataset.v * 60 === c.total));
+  },
+  buildTimeline() {
+    const r = this.run;
+    this.k.timeline.innerHTML = r.steps.map((s, i) => `<div class="${i < r.idx ? 'done' : i === r.idx ? 'cur' : ''}" style="flex:${s.dur};background:${COLORS[s.c % COLORS.length]}">${esc(s.name)}</div>`).join('');
+    this.k.hero.style.setProperty('--c', COLORS[r.steps[r.idx].c % COLORS.length]);
+  },
+  renderRun() {
+    if (!this.run) return;
+    const r = this.run, k = this.k, st = r.steps[r.idx], rem = st.dur - this.clock.ms, n = r.steps.length, last = r.idx === n - 1;
+    const el = r.actual.reduce((a, x, i) => a + (i === r.idx ? this.clock.ms : x), 0);
+    T(k.idx, `步驟 ${r.idx + 1} / ${n}` + (this.clock.on ? '' : '・暫停'));
+    T(k.name, st.name); T(k.big, down(rem)); k.hero.classList.toggle('over', rem <= 0);
+    k.bar.style.width = Math.min(100, this.clock.ms / st.dur * 100) + '%';
+    T(k.next, (last ? '最後一步' : `下一步：${r.steps[r.idx + 1].name}（${up(r.steps[r.idx + 1].dur)}）`) + `・總剩餘 ${down(r.plan - el)}`);
+    T(k.pause, this.clock.on ? '暫停' : '繼續'); T(k.nextbtn, last ? '結束 ■' : '下一步 ▶'); k.prev.disabled = !r.idx;
+  },
+  renderResult() {
+    const r = this.run, tot = r.actual.reduce((a, b) => a + b, 0), d = tot - r.plan;
+    T(this.k.rtotal, up(tot)); T(this.k.rsub, `預計 ${up(r.plan)}・` + (Math.abs(d) < 5000 ? '幾乎剛好 👍' : d > 0 ? `超時 ${up(d)}` : `提早 ${up(-d)}`));
+    const dc = (act, plan) => { if (act == null) return '—'; const x = act - plan; return Math.abs(x) < 5000 ? '±0' : `<span class="${x > 0 ? 'd-over' : 'd-under'}">${x > 0 ? '+' : '−'}${up(Math.abs(x))}</span>`; };
+    this.k.rtable.innerHTML = r.steps.map((s, i) => { const act = i <= r.idx ? r.actual[i] : null; return `<tr><td><span class="sdot" style="background:${COLORS[s.c % COLORS.length]}"></span>${esc(s.name)}</td><td class="num">${up(s.dur)}</td><td class="num">${act == null ? '未進行' : up(act)}</td><td class="num">${dc(act, s.dur)}</td></tr>`; }).join('') +
+      `<tr><td><b>合計</b></td><td class="num"><b>${up(r.plan)}</b></td><td class="num"><b>${up(tot)}</b></td><td class="num">${dc(tot, r.plan)}</td></tr>`;
+  }
+};
+
+/* ========== 6. 倒數計時 ========== */
+const cd = {
+  id: 'countdown', name: '倒數計時', icon: '⏳', cat: '教學課堂', desc: '課堂活動、小組討論通用倒數，時間到響鈴',
+  html: `
+  <div class="card hero" data-k="hero"><div class="ringwrap">${ringSVG('cdRing')}<div class="inner"><div class="big mono" data-k="big"></div><div class="sub" data-k="sub"></div></div></div></div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="tg">開始</button></div>
+  <div class="cfg"><div class="chips center">${[1, 3, 5, 10, 15, 30].map(v => `<button class="chip" data-act="pre" data-v="${v * 60}">${v} 分</button>`).join('')}</div>
+  <div class="custom">自訂 ${mmssHTML('cd')}</div></div>`,
+  init(el) {
+    this.el = el; this.k = keys(el); this.ring = $('#cdRing', el); this.dur = store.get('cd', 300); this.clock = new Clock(); this.ended = false;
+    $$('[data-cd]', el).forEach(i => i.addEventListener('change', () => { const s = readMMSS(el, 'cd'); if (s > 0) this.setDur(s); else fillMMSS(el, 'cd', this.dur); }));
+    onAct(el, (a, b) => this.act(a, b)); fillMMSS(el, 'cd', this.dur);
+  },
+  setDur(s) { this.dur = s; store.set('cd', s); this.clock.reset(); this.ended = false; fillMMSS(this.el, 'cd', s); this.render(); },
+  rem() { return this.dur * 1000 - this.clock.ms; },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') { if (this.ended) { this.clock.reset(); this.ended = false; this.clock.play(); } else this.clock.toggle(); }
+    else if (a === 'reset') { this.clock.reset(); this.ended = false; }
+    else if (a === 'pre') return this.setDur(+b.dataset.v);
+    this.render();
+  },
+  logic() { if (this.clock.on && this.rem() <= 0 && !this.ended) { this.ended = true; alarm('時間到！', 3); } },
+  title() { return this.clock.ms > 0 ? down(this.rem()) : null; },
+  render() {
+    const k = this.k; T(k.big, down(this.rem())); k.hero.classList.toggle('over', this.ended); setRing(this.ring, this.clock.ms / (this.dur * 1000));
+    T(k.sub, this.ended ? '時間到！' : this.clock.ms && !this.clock.on ? '暫停中' : '');
+    T(k.tg, this.ended ? '重新開始' : this.clock.on ? '暫停' : this.clock.ms ? '繼續' : '開始');
+    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.dur));
+  }
+};
+
+/* ========== 7. 發表計時 ========== */
+const speech = {
+  id: 'speech', name: '發表計時', icon: '🎤', cat: '教學課堂', desc: '專題、科展口頭報告：綠→黃→紅燈號，快到一聲鈴、時間到兩聲鈴',
+  html: `
+  <div class="card hero speech-hero" data-k="hero"><div class="phase" data-k="phase"></div><div class="big mono" data-k="big"></div><div class="sub" data-k="sub"></div></div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="tg">開始</button></div>
+  <div class="chips center cfg">${[3, 5, 8, 10, 15].map(v => `<button class="chip" data-act="pre" data-v="${v}">${v} 分鐘</button>`).join('')}</div>`,
+  init(el) { this.el = el; this.k = keys(el); this.min = store.get('speech', 5); this.clock = new Clock(); this.f = {}; onAct(el, (a, b) => this.act(a, b)); },
+  warnMs() { return this.min >= 3 ? 60000 : 30000; },
   running() { return this.clock.on; },
   toggle() { this.act('toggle'); },
   act(a, b) {
     if (a === 'toggle') this.clock.toggle();
     else if (a === 'reset') { this.clock.reset(); this.f = {}; }
-    else if (a === 'mode') { this.cfg.mode = this.cfg.mode === 'up' ? 'down' : 'up'; }
-    else if (a === 'pre') { this.cfg.min = +b.dataset.v; this.clock.reset(); this.f = {}; }
-    this.saveCfg();
+    else if (a === 'pre') { this.min = +b.dataset.v; store.set('speech', this.min); this.clock.reset(); this.f = {}; }
+    this.render();
   },
   logic() {
-    if (!this.clock.on) return;
-    const ms = this.clock.ms, Tm = this.cfg.min * 60000, W = Tm - this.cfg.warn * 60000, f = this.f;
-    if (this.cfg.warn > 0 && ms >= W && ms < Tm && !f.w) { f.w = true; Sound.bell(1); toast(`剩 ${fmtMin(this.cfg.warn)} 分鐘`); }
-    if (ms >= Tm && !f.e) { f.e = true; f.w = true; Sound.bell(2); toast('時間到！', 3500); flash(); }
-    if (this.cfg.rep && ms >= Tm + 30000) { const n = Math.floor((ms - Tm) / 30000); if (n !== f.k) { f.k = n; Sound.bell(3); } }
+    if (!this.clock.on) return; const ms = this.clock.ms, Tm = this.min * 60000;
+    if (ms >= Tm - this.warnMs() && ms < Tm && !this.f.w) { this.f.w = true; Sound.bell(1); toast(`剩 ${this.warnMs() / 1000} 秒`); }
+    if (ms >= Tm && !this.f.e) { this.f.e = this.f.w = true; alarm('時間到！', 2); }
   },
   title() { return this.clock.ms > 0 ? up(this.clock.ms) : null; },
   render() {
-    const k = this.k, ms = this.clock.ms, Tm = this.cfg.min * 60000, W = Tm - this.cfg.warn * 60000;
-    const light = ms === 0 && !this.clock.on ? 'idle' : ms >= Tm ? 'red' : this.cfg.warn > 0 && ms >= W ? 'yellow' : 'green';
+    const k = this.k, ms = this.clock.ms, Tm = this.min * 60000;
+    const light = !ms && !this.clock.on ? 'idle' : ms >= Tm ? 'red' : ms >= Tm - this.warnMs() ? 'yellow' : 'green';
     k.hero.dataset.light = light;
-    T(k.phase, { idle: '準備', green: '發表中', yellow: '時間快到了', red: '時間到' }[light] + (ms > 0 && !this.clock.on ? '（暫停）' : ''));
-    T(k.big, this.cfg.mode === 'up' ? up(ms) : down(Tm - ms));
-    T(k.sub, `時限 ${fmtMin(this.cfg.min)} 分鐘` + (this.cfg.warn > 0 ? `　·　剩 ${fmtMin(this.cfg.warn)} 分鐘黃燈` : '') + (ms > Tm ? `　·　已超時 ${up(ms - Tm)}` : ''));
-    k.lg.classList.toggle('on', light === 'green'); k.ly.classList.toggle('on', light === 'yellow'); k.lr.classList.toggle('on', light === 'red');
-    T(k.toggle, this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始'); T(k.mode, this.cfg.mode === 'up' ? '改顯示剩餘' : '改顯示已用');
-    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.cfg.min));
+    T(k.phase, { idle: `時限 ${this.min} 分鐘`, green: '發表中', yellow: '時間快到了', red: '時間到' }[light] + (ms && !this.clock.on ? '（暫停）' : ''));
+    T(k.big, up(ms)); T(k.sub, ms > Tm ? `已超時 ${up(ms - Tm)}` : `剩 ${down(Tm - ms)}`);
+    T(k.tg, this.clock.on ? '暫停' : ms ? '繼續' : '開始');
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.min));
   }
 };
 
-/* ================= 首頁、路由與主迴圈 ================= */
-const MODULES = [gym, hiit, pomo, teach, cd, speech, exam, sw];
-const CATS = ['運動健身', '專注學習', '教學課堂', '通用工具'];
-let current = 'home';
+/* ========== 8. 考試時鐘 ========== */
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const exam = {
+  id: 'exam', name: '考試時鐘', icon: '📝', cat: '教學課堂', desc: '投影用大時鐘：科目、考試時間與剩餘時間，結束前 15、5 分鐘響鈴',
+  html: `
+  <div class="card exam-hero">
+    <div class="exam-date" data-k="date"></div><div class="exam-clock mono" data-k="clock"></div>
+    <p class="exam-subject" data-k="subj"></p><div class="exam-range mono" data-k="range"></div>
+    <div class="exam-status" data-k="status"><span class="l" data-k="sl"></span><span class="v mono" data-k="sv"></span></div>
+  </div>
+  <div class="card cfg">
+    <div class="erow">科目 <input data-c="subject" placeholder="例：數學"></div>
+    <div class="erow">開始 <input type="time" data-c="start"> 結束 <input type="time" data-c="end"></div>
+    <div class="chips center" style="margin:0">從現在開始考：${[40, 50, 60, 90, 100, 120].map(v => `<button class="chip" data-act="now" data-v="${v}">${v} 分</button>`).join('')}</div>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = keys(el); const s = new Date(Math.ceil(Date.now() / 300000) * 300000);
+    this.cfg = Object.assign({ subject: '', start: hm(s), end: hm(new Date(+s + 3000000)) }, store.get('exam', {})); this.fired = {};
+    $$('[data-c]', el).forEach(i => { i.value = this.cfg[i.dataset.c]; i.addEventListener('input', () => { this.cfg[i.dataset.c] = i.value; store.set('exam', this.cfg); this.fired = {}; this.render(); }); });
+    onAct(el, (a, b) => { const n = new Date(); n.setSeconds(0, 0); this.cfg.start = hm(n); this.cfg.end = hm(new Date(+n + b.dataset.v * 60000)); store.set('exam', this.cfg); this.fired = {}; $('[data-c="start"]', el).value = this.cfg.start; $('[data-c="end"]', el).value = this.cfg.end; this.render(); });
+  },
+  times() { const now = new Date(), mk = v => { const [h, m] = String(v || '0:0').split(':').map(Number); const d = new Date(now); d.setHours(h || 0, m || 0, 0, 0); return +d; }; const s = mk(this.cfg.start); let e = mk(this.cfg.end); if (e <= s) e += 864e5; return { s, e }; },
+  running() { return current === 'exam'; },
+  logic() {
+    if (current !== 'exam') return;
+    const { s, e } = this.times(), now = Date.now(), rem = e - now, f = this.fired, once = (k, c, fn) => { if (c && !f[k]) { f[k] = 1; fn(); } };
+    once('s' + s, now >= s && now < s + 60000 && now < e, () => alarm('考試開始', 1));
+    [[15, 1], [5, 2]].forEach(([w, n]) => once(`w${w}${s}`, now >= s && rem <= w * 60000 && rem > w * 60000 - 60000, () => alarm(`距離考試結束還有 ${w} 分鐘`, n)));
+    once('e' + s, now >= e && now < e + 60000, () => alarm('考試時間到，請停止作答', 3));
+  },
+  title() { return null; },
+  render() {
+    const k = this.k, now = new Date(), t = +now, { s, e } = this.times();
+    T(k.date, now.toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'long' }));
+    T(k.clock, `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
+    T(k.subj, this.cfg.subject.trim() || '考試'); T(k.range, `${this.cfg.start} – ${this.cfg.end}`);
+    let l, v, c = '';
+    if (t < s) { l = '距離開始'; v = down(s - t); } else if (t < e) { l = '剩餘時間'; v = down(e - t); c = e - t <= 300000 ? 'bad' : e - t <= 900000 ? 'warn' : ''; } else { l = '考試已結束'; v = '停止作答'; c = 'bad'; }
+    T(k.sl, l); T(k.sv, v); k.status.className = 'exam-status ' + c;
+  }
+};
 
-function buildHome() {
-  const home = $('#v-home');
-  home.innerHTML = `<div class="intro"><h2>計時器工具箱</h2><p>選一個計時器開始。各計時器可同時在背景運作，卡片右上角會顯示正在進行的時間。</p></div>` +
-    CATS.map(c => { const ms = MODULES.filter(m => m.cat === c); return ms.length ? `<div class="cat">${c}</div><div class="grid">${ms.map(m =>
-      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>` : ''; }).join('') +
-    `<div class="foot">💡 網址後面加上 ${MODULES.map(m => `<code>#${m.id}</code>`).join(' ')} 可直接開啟指定計時器，嵌入 Google 協作平台時可為每個頁面放不同計時器。<br>
-     ⌨️ 快捷鍵：空白鍵 開始／暫停、F 全螢幕。設定與紀錄只存在這台裝置的瀏覽器中。</div>`;
-}
+/* ========== 9. 廚房計時（多組同時） ========== */
+const KITCHEN = [['泡麵', 180], ['半熟蛋', 360], ['全熟蛋', 600], ['燙青菜', 90], ['泡茶', 180], ['手沖咖啡', 210], ['義大利麵', 540], ['烤吐司', 150]];
+const kitchen = {
+  id: 'kitchen', name: '廚房計時', icon: '🍳', cat: '生活娛樂', desc: '泡麵、煮蛋、泡茶一鍵開始，可同時跑多個計時',
+  html: `
+  <div class="chips center">${KITCHEN.map(([n, s]) => `<button class="chip" data-act="add" data-n="${n}" data-v="${s}">${n} ${up(s * 1000).replace(/^0/, '')}</button>`).join('')}</div>
+  <div class="custom" style="margin-bottom:16px">自訂 ${mmssHTML('kc')}<button class="btn sm" data-act="custom">＋ 開始</button></div>
+  <div class="kgrid" data-k="list"></div>
+  <p class="hint" data-k="empty">點上面的項目，就會開始一個新的計時</p>`,
+  init(el) {
+    this.el = el; this.k = keys(el); this.list = (store.get('kitchen', []) || []).map(x => ({ ...x, clk: new Clock(x.clk) })); this.seq = Date.now();
+    fillMMSS(el, 'kc', 300); onAct(el, (a, b) => this.act(a, b)); this.build();
+  },
+  save() { store.set('kitchen', this.list); },
+  running() { return this.list.some(x => x.clk.on); },
+  act(a, b) {
+    if (a === 'add' || a === 'custom') {
+      const sec = a === 'add' ? +b.dataset.v : readMMSS(this.el, 'kc'); if (!sec) return;
+      const c = new Clock(); c.play(); this.list.push({ id: ++this.seq, name: a === 'add' ? b.dataset.n : '計時', dur: sec * 1000, clk: c, done: false });
+      Sound.beep(1, 880); this.build();
+    } else {
+      const it = this.list.find(x => x.id === +b.closest('.kcard').dataset.id); if (!it) return;
+      if (a === 'pp') it.clk.toggle(); else this.list = this.list.filter(x => x !== it);
+      this.build();
+    }
+    this.save();
+  },
+  build() {
+    this.k.list.innerHTML = this.list.map(x => `<div class="kcard" data-id="${x.id}"><div class="nm">${esc(x.name)}</div><div class="t mono">00:00</div>
+      <div class="acts"><button class="btn sm" data-act="pp"></button><button class="btn sm" data-act="del">移除</button></div></div>`).join('');
+    this.k.empty.hidden = this.list.length > 0; this.render();
+  },
+  logic() {
+    const now = Date.now();
+    this.list.forEach(x => {
+      if (!x.clk.on) return; const r = x.dur - x.clk.ms;
+      if (r <= 0 && !x.done) { x.done = true; x.lastRing = now; this.save(); alarm(`${x.name} 好了！`, 3); }
+      else if (x.done && now - x.lastRing > 15000) { x.lastRing = now; Sound.bell(2); }
+    });
+  },
+  title() { const r = this.list.filter(x => x.clk.on).map(x => x.dur - x.clk.ms); return r.length ? down(Math.min(...r)) : null; },
+  render() {
+    this.list.forEach(x => {
+      const card = $(`.kcard[data-id="${x.id}"]`, this.k.list); if (!card) return;
+      T($('.t', card), down(x.dur - x.clk.ms)); card.classList.toggle('done', x.done);
+      const pp = $('[data-act="pp"]', card); T(pp, x.clk.on ? '暫停' : '繼續'); pp.hidden = x.done;
+      T($('[data-act="del"]', card), x.done ? '知道了' : '移除');
+    });
+  }
+};
+
+/* ========== 10. 棋鐘 ========== */
+const chess = {
+  id: 'chess', name: '棋鐘', icon: '♟️', cat: '生活娛樂', desc: '下棋、桌遊、辯論輪流發言：點自己那側就換對方計時',
+  html: `
+  <div class="chess"><button class="cside top" data-act="tap" data-v="0"><span class="n" data-k="n0">玩家 A</span><span class="t mono" data-k="t0"></span></button>
+  <button class="cside" data-act="tap" data-v="1"><span class="n" data-k="n1">玩家 B</span><span class="t mono" data-k="t1"></span></button></div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn" data-act="pause" data-k="pause">暫停</button></div>
+  <div class="chips center cfg">${[[1, 0], [3, 0], [5, 0], [10, 0], [3, 2], [5, 3]].map(([m, i]) => `<button class="chip" data-act="pre" data-v="${m},${i}">${m} 分${i ? ` +${i} 秒` : ''}</button>`).join('')}</div>
+  <p class="hint cfg">輪到誰，誰就按自己那一側結束回合；「+秒」表示每步加時。</p>`,
+  init(el) { this.el = el; this.k = keys(el); this.cfg = store.get('chess', [5, 0]); this.turn = new Clock(); this.reset(); onAct(el, (a, b) => this.act(a, b)); },
+  reset() { this.rem = [this.cfg[0] * 60000, this.cfg[0] * 60000]; this.a = -1; this.out = -1; this.turn.reset(); this.moves = [0, 0]; },
+  cur(i) { return i === this.a ? this.rem[i] - this.turn.ms : this.rem[i]; },
+  running() { return this.turn.on; },
+  toggle() { if (this.a >= 0) this.act('tap', { dataset: { v: this.a } }); },
+  act(a, b) {
+    if (a === 'tap') {
+      const i = +b.dataset.v; if (this.out >= 0) return;
+      if (this.a === -1) { this.a = 1 - i; this.turn.reset(); this.turn.play(); Sound.beep(1, 880, 0.06); }
+      else if (this.a === i) { if (!this.turn.on) this.turn.play(); this.rem[i] = this.rem[i] - this.turn.ms + this.cfg[1] * 1000; this.moves[i]++; this.a = 1 - i; this.turn.reset(); this.turn.play(); Sound.beep(1, 880, 0.06); }
+    } else if (a === 'pause') { if (this.a >= 0 && this.out < 0) this.turn.toggle(); }
+    else if (a === 'reset') this.reset();
+    else if (a === 'pre') { this.cfg = b.dataset.v.split(',').map(Number); store.set('chess', this.cfg); this.reset(); }
+    this.render();
+  },
+  logic() { if (this.a >= 0 && this.turn.on && this.cur(this.a) <= 0) { this.rem[this.a] = 0; this.turn.reset(); this.out = this.a; alarm(`${this.a ? '玩家 B' : '玩家 A'} 時間用完`, 3); } },
+  title() { return this.a >= 0 ? down(this.cur(this.a)) : null; },
+  render() {
+    const k = this.k;
+    [0, 1].forEach(i => { const side = $(`[data-v="${i}"].cside`, this.el); T(k['t' + i], down(Math.max(0, this.cur(i)))); side.classList.toggle('act', i === this.a && this.out < 0); side.classList.toggle('out', i === this.out);
+      T(k['n' + i], `玩家 ${i ? 'B' : 'A'}` + (this.moves[i] ? `・${this.moves[i]} 步` : '') + (this.a === -1 && this.out < 0 ? '（點一下開始）' : '')); });
+    T(k.pause, this.a >= 0 && !this.turn.on && this.out < 0 ? '繼續' : '暫停');
+    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', c.dataset.v === this.cfg.join(',')));
+  }
+};
+
+/* ========== 11. 碼錶 ========== */
+const sw = {
+  id: 'stopwatch', name: '碼錶', icon: '⏱️', cat: '通用工具', desc: '精確到 0.01 秒，支援分圈',
+  html: `
+  <div class="card hero"><div class="big mono" data-k="big">00:00.00</div></div>
+  <div class="row"><button class="btn xl" data-act="lap" data-k="lap" style="min-width:130px">分圈</button><button class="btn primary xl" data-act="toggle" data-k="tg" style="min-width:130px">開始</button></div>
+  <div class="laps"><table class="log"><tbody data-k="laps"></tbody></table></div>`,
+  init(el) { this.el = el; this.k = keys(el); this.clock = new Clock(); this.laps = []; onAct(el, a => this.act(a)); },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a) {
+    if (a === 'toggle') this.clock.toggle();
+    else if (this.clock.on) this.laps.push(this.clock.ms); else { this.clock.reset(); this.laps = []; }
+    const L = this.laps; this.k.laps.innerHTML = L.map((t, i) => `<tr><td>第 ${i + 1} 圈</td><td class="num">${cs(t - (L[i - 1] || 0))}</td><td class="num" style="color:var(--muted)">${cs(t)}</td></tr>`).reverse().join('');
+    this.render();
+  },
+  logic() {},
+  title() { return this.clock.ms ? up(this.clock.ms) : null; },
+  render() { const k = this.k, ms = this.clock.ms; T(k.big, cs(ms)); T(k.tg, this.clock.on ? '暫停' : ms ? '繼續' : '開始'); T(k.lap, this.clock.on || !ms ? '分圈' : '重設'); k.lap.disabled = !ms; }
+};
+
+/* ========== 首頁、路由、主迴圈 ========== */
+const MODULES = [gym, hiit, pomo, breath, teach, cd, speech, exam, kitchen, chess, sw];
+const CATS = ['運動健身', '學習專注', '教學課堂', '生活娛樂', '通用工具'];
+let current = 'home';
 function setup() {
-  buildHome();
-  const app = $('#app');
-  MODULES.forEach(m => { const sec = document.createElement('section'); sec.className = 'view'; sec.id = 'v-' + m.id; sec.hidden = true; sec.innerHTML = m.html; app.appendChild(sec); m.init(sec); });
+  $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。計時器會在背景繼續跑，卡片右上角顯示進行中的時間。</p></div>` +
+    CATS.map(c => `<div class="cat">${c}</div><div class="grid">${MODULES.filter(m => m.cat === c).map(m =>
+      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>`).join('') +
+    `<div class="foot">💡 網址後面加 ${MODULES.map(m => `<code>#${m.id}</code>`).join(' ')} 可直接開啟指定計時器。<br>⌨️ 空白鍵：開始／暫停　F：全螢幕</div>`;
+  MODULES.forEach(m => { const sec = document.createElement('section'); sec.className = 'view'; sec.id = 'v-' + m.id; sec.hidden = true; sec.innerHTML = m.html; $('#app').appendChild(sec); m.init(sec); });
   window.addEventListener('hashchange', route); route();
-  // 頂端按鈕
-  const sb = $('#soundBtn'), paintSound = () => { sb.textContent = Sound.on ? '🔔' : '🔕'; sb.title = Sound.on ? '音效：開' : '音效：關'; };
-  paintSound(); sb.onclick = () => { Sound.on = !Sound.on; store.set('sound', Sound.on); paintSound(); if (Sound.on) Sound.beep(1); toast(Sound.on ? '音效已開啟' : '音效已關閉'); };
-  const themes = ['auto', 'light', 'dark'], applyTheme = t => { if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t; };
-  let theme = store.get('theme', 'auto'); applyTheme(theme);
-  $('#themeBtn').onclick = () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; applyTheme(theme); store.set('theme', theme); toast({ auto: '外觀：跟隨系統', light: '外觀：淺色', dark: '外觀：深色' }[theme]); };
+  const sb = $('#soundBtn'), paint = () => { sb.textContent = Sound.on ? '🔔' : '🔕'; };
+  paint(); sb.onclick = () => { Sound.on = !Sound.on; store.set('sound', Sound.on); paint(); toast(Sound.on ? '音效開啟' : '音效關閉'); };
   $('#fsBtn').onclick = toggleFs;
   document.addEventListener('fullscreenchange', () => document.documentElement.classList.toggle('fs', !!document.fullscreenElement));
-  document.addEventListener('webkitfullscreenchange', () => document.documentElement.classList.toggle('fs', !!document.webkitFullscreenElement));
   let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
-  if (inFrame) $('#newTabBtn').hidden = false;
+  $('#newTabBtn').hidden = !inFrame;
   document.addEventListener('keydown', e => {
-    if (e.target.closest('input,textarea,select,[contenteditable]') || e.ctrlKey || e.metaKey || e.altKey || $('.modal')) return;
+    if (e.target.closest('input,textarea,select') || e.ctrlKey || e.metaKey || e.altKey || $('.modal')) return;
     const m = MODULES.find(x => x.id === current); if (!m) return;
     if (e.code === 'Space') { e.preventDefault(); m.toggle && m.toggle(); }
     else if (e.key === 'f' || e.key === 'F') toggleFs();
     else if (m.key && m.key(e)) e.preventDefault();
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Wake.lock = null; });
-  const frame = () => { loop(); requestAnimationFrame(frame); };
-  requestAnimationFrame(frame); setInterval(loop, 500); // 分頁在背景時 rAF 會停，用 interval 保證提醒照常觸發
+  const frame = () => { loop(); requestAnimationFrame(frame); }; requestAnimationFrame(frame); setInterval(loop, 500);
 }
 function toggleFs() {
   const d = document, el = d.documentElement;
-  if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
-  const req = el.requestFullscreen || el.webkitRequestFullscreen;
-  if (!req) { toast('此瀏覽器不支援全螢幕'); return; }
-  try { const p = req.call(el); if (p && p.catch) p.catch(() => toast('嵌入頁面無法全螢幕，請按 ↗ 在新分頁開啟')); } catch (e) { toast('嵌入頁面無法全螢幕，請按 ↗ 在新分頁開啟'); }
+  if (d.fullscreenElement) return d.exitFullscreen();
+  const req = el.requestFullscreen || el.webkitRequestFullscreen; const fail = () => toast('嵌入頁面無法全螢幕，請按 ↗ 在新分頁開啟');
+  if (!req) return fail(); try { const p = req.call(el); if (p && p.catch) p.catch(fail); } catch (e) { fail(); }
 }
 function route() {
-  const id = location.hash.slice(1), m = MODULES.find(x => x.id === id);
-  current = m ? m.id : 'home';
+  const m = MODULES.find(x => x.id === location.hash.slice(1)); current = m ? m.id : 'home';
   $$('.view').forEach(v => v.hidden = v.id !== 'v-' + current);
-  $('#backBtn').hidden = current === 'home';
-  $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : '計時器工具箱';
-  $('#newTabBtn').href = location.href;
-  if (m) m.render();
-  window.scrollTo(0, 0);
+  $('#backBtn').hidden = !m; $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : 'YSTimer 計時器'; $('#newTabBtn').href = location.href;
+  if (m) m.render(); window.scrollTo(0, 0);
 }
 let lastTitle = '';
 function loop() {
   for (const m of MODULES) { try { m.logic(); } catch (e) { console.error(m.id, e); } }
   const m = MODULES.find(x => x.id === current);
   if (m) { try { m.render(); } catch (e) { console.error(m.id, e); } }
-  else MODULES.forEach(x => { const el = $(`[data-live="${x.id}"]`); if (el) T(el, x.running() ? (x.title() || '進行中') : ''); });
-  const t = m && m.title() ? `${m.title()} · ${m.name}` : (m ? m.name + ' · 計時器工具箱' : '計時器工具箱');
-  if (t !== lastTitle) { document.title = t; lastTitle = t; }
+  else MODULES.forEach(x => T($(`[data-live="${x.id}"]`), x.running() && x.id !== 'exam' ? (x.title() || '進行中') : ''));
+  const t = m && m.title() ? `${m.title()} · ${m.name}` : (m ? m.name : 'YSTimer 計時器');
+  if (t !== lastTitle) document.title = lastTitle = t;
   Wake.want(MODULES.some(x => x.running()));
 }
 setup();
