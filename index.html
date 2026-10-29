@@ -501,7 +501,7 @@ const breath = {
 
 /* ========== 5. 試教計時器 ========== */
 const COLORS = ['#e07a3f', '#d39e12', '#4fa262', '#2c8f8a', '#3b7bd0', '#8a63c9', '#c9578a', '#7d8a92', '#b5651d', '#5d8f2f'];
-const TEACH_DEFAULT = () => ({ total: 1200, steps: [['進場與問好', 60], ['引起動機', 180], ['連結先備經驗', 120], ['主要內容', 420], ['實作', 240], ['統整', 120], ['回家作業', 60], ['其他', 0]].map(([name, sec], c) => ({ name, sec, c })) });
+const TEACH_DEFAULT = () => ({ total: 900, steps: [['進場與問好', 30], ['引起動機', 30], ['連結先備經驗', 60], ['主要內容', 360], ['實作', 360], ['統整', 30], ['回家作業', 30], ['其他', 0]].map(([name, sec], c) => ({ name, sec, c })) });
 const teach = {
   id: 'teach', name: '試教計時器', icon: '🧑‍🏫', cat: '教學課堂', desc: '把總時間分配給各教學步驟（精確到秒），上課時大字顯示目前步驟',
   html: `
@@ -561,7 +561,7 @@ const teach = {
         const diff = c.total - on.reduce((x, s) => x + s.sec, 0), big = on.reduce((m, s) => s.sec > m.sec ? s : m, on[0]); big.sec = Math.max(0, big.sec + diff); break;
       }
       case 'add': st.push({ name: '新步驟', sec: 120, c: st.length }); break;
-      case 'default': if (!await ask('恢復預設的教學步驟（20 分鐘）？')) return; this.cfg = TEACH_DEFAULT(); break;
+      case 'default': if (!await ask('恢復預設的教學步驟（15 分鐘）？')) return; this.cfg = TEACH_DEFAULT(); break;
       case 'up': case 'del': {
         const i = +b.closest('.step-row').dataset.i;
         if (a === 'del') { if (st.length > 1) st.splice(i, 1); } else if (i > 0) [st[i - 1], st[i]] = [st[i], st[i - 1]];
