@@ -1,0 +1,1220 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f7a5c">
+<title>計時器工具箱</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='36' r='24' fill='%231f7a5c'/%3E%3Crect x='26' y='4' width='12' height='8' rx='2' fill='%231f7a5c'/%3E%3Cpath d='M32 36V20' stroke='%23fff' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
+<style>
+:root{
+  --bg:#f4f5f2;--surface:#ffffff;--surface2:#eef0ec;--text:#1c2320;--muted:#65706a;--line:#dce0da;
+  --accent:#1f7a5c;--accent-ink:#ffffff;--work:#d4531c;--rest:#2b8a52;--warn:#c98a00;--danger:#c62f38;
+  --info:#2f6fb5;--cool:#7a55b8;--shadow:0 1px 2px rgba(0,0,0,.05),0 6px 18px rgba(0,0,0,.05);
+  --light-green:#2b8a52;--light-yellow:#e2a600;--light-red:#c62f38;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#111513;--surface:#1a1f1c;--surface2:#232a26;--text:#e7ebe8;--muted:#9aa49e;--line:#2d3531;
+    --accent:#3db387;--accent-ink:#06140e;--work:#ff7b45;--rest:#4cc47c;--warn:#f0b72f;--danger:#ff5f68;
+    --info:#62a1e6;--cool:#a98be0;--shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#111513;--surface:#1a1f1c;--surface2:#232a26;--text:#e7ebe8;--muted:#9aa49e;--line:#2d3531;
+  --accent:#3db387;--accent-ink:#06140e;--work:#ff7b45;--rest:#4cc47c;--warn:#f0b72f;--danger:#ff5f68;
+  --info:#62a1e6;--cool:#a98be0;--shadow:none;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);min-height:100vh;
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+.mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+button{font:inherit;color:inherit}
+a{color:inherit}
+
+/* top bar */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:6px;padding:10px 16px;
+  background:color-mix(in srgb,var(--bg) 90%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line)}
+.topbar h1{font-size:17px;margin:0 6px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.back{display:inline-flex;align-items:center;gap:4px;text-decoration:none;font-weight:600;padding:8px 10px;border-radius:10px;color:var(--accent);white-space:nowrap}
+.back:hover{background:var(--surface2)}
+.iconbtn{display:inline-grid;place-items:center;width:40px;height:40px;border-radius:10px;border:0;background:transparent;cursor:pointer;text-decoration:none;font-size:18px;flex:none}
+.iconbtn:hover{background:var(--surface2)}
+main{max-width:980px;margin:0 auto;padding:16px 16px 56px}
+
+/* home */
+.intro{margin:6px 2px 18px}
+.intro h2{font-size:26px;margin:0 0 4px}
+.intro p{margin:0;color:var(--muted)}
+.cat{margin:22px 2px 10px;font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.06em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.tcard{position:relative;display:flex;gap:14px;align-items:flex-start;padding:16px;border-radius:16px;background:var(--surface);
+  border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;transition:transform .12s,border-color .12s}
+.tcard:hover{transform:translateY(-2px);border-color:var(--accent)}
+.tcard .ic{font-size:30px;line-height:1;flex:none;width:48px;height:48px;display:grid;place-items:center;background:var(--surface2);border-radius:12px}
+.tcard h3{margin:0 0 2px;font-size:17px}
+.tcard p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
+.live{position:absolute;top:10px;right:10px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
+.live:empty{display:none}
+.foot{margin-top:28px;font-size:13px;color:var(--muted);line-height:1.7}
+.foot code{background:var(--surface2);padding:1px 6px;border-radius:6px}
+
+/* shared components */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:var(--shadow)}
+.card h3{margin:0;font-size:16px}
+.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.hero{--c:var(--accent);text-align:center;padding:22px 14px 20px;position:relative;overflow:hidden}
+.hero .phase{font-weight:700;color:var(--c);letter-spacing:.03em;font-size:17px;min-height:1.5em}
+.hero .stepname{font-size:clamp(26px,6vw,46px);font-weight:800;line-height:1.2;margin:4px 0 2px;color:var(--c);word-break:break-word}
+.big{font-size:clamp(64px,17vw,156px);font-weight:700;line-height:1.05;letter-spacing:-.02em;margin:4px 0}
+.hero .sub{color:var(--muted);font-size:15px;min-height:1.5em}
+.hero.over .big{color:var(--danger)}
+.hero[data-phase="work"]{--c:var(--work)}
+.hero[data-phase="rest"]{--c:var(--rest)}
+.hero[data-phase="prep"]{--c:var(--info)}
+.hero[data-phase="cool"]{--c:var(--cool)}
+.hero[data-phase="short"]{--c:var(--rest)}
+.hero[data-phase="long"]{--c:var(--info)}
+.hero[data-phase="focus"]{--c:var(--work)}
+.hero[data-phase="done"]{--c:var(--accent)}
+.bar{height:8px;background:var(--surface2);border-radius:99px;overflow:hidden;margin:14px auto 4px;max-width:560px}
+.bar i{display:block;height:100%;width:0;background:var(--c,var(--accent));border-radius:inherit;transition:width .3s linear}
+.hero.over .bar i{background:var(--danger)}
+.btn{appearance:none;border:1px solid var(--line);background:var(--surface);color:var(--text);font-weight:600;padding:10px 16px;
+  border-radius:12px;cursor:pointer;min-height:44px;transition:background .12s,border-color .12s}
+.btn:hover:not(:disabled){border-color:var(--muted)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.btn.primary:hover:not(:disabled){filter:brightness(1.07)}
+.btn.xl{font-size:20px;padding:14px 28px;min-width:min(100%,300px)}
+.btn.danger{color:var(--danger)}
+.btn.sm{min-height:34px;padding:5px 12px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-bottom:14px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:6px 14px;cursor:pointer;font-size:14.5px;font-weight:600;min-height:36px}
+.chip.on{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.field{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);font-weight:600;min-width:0}
+.field.grow{flex:1 1 200px}
+.field-row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-bottom:12px}
+.lbl-line{font-size:14px;color:var(--muted);font-weight:600;margin:4px 0 6px}
+input,select,textarea{font:inherit;color:var(--text);background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:8px 10px;min-height:40px;width:100%}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+input[type=number]{width:90px}
+input[type=checkbox]{width:20px;height:20px;min-height:0;margin:0;accent-color:var(--accent);flex:none}
+.check{display:flex;gap:8px;align-items:center;font-size:15px;cursor:pointer;margin-top:10px}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface2);height:40px}
+.stepper button{border:0;background:transparent;width:38px;height:100%;cursor:pointer;font-size:18px;font-weight:700}
+.stepper button:hover{background:var(--line)}
+.stepper span{min-width:40px;text-align:center;font-weight:700;color:var(--text);font-size:17px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.stat .l{display:block;font-size:13px;color:var(--muted);font-weight:600}
+.stat .v{font-size:24px;font-weight:700}
+.stat.warn .v{color:var(--warn)} .stat.bad .v{color:var(--danger)} .stat.good .v{color:var(--rest)}
+table.log{width:100%;border-collapse:collapse;font-size:15px}
+table.log th,table.log td{text-align:left;padding:8px 6px;border-bottom:1px solid var(--line)}
+table.log th{font-size:13px;color:var(--muted);font-weight:600}
+table.log td.num,table.log th.num{text-align:right;font-variant-numeric:tabular-nums}
+table.log tr.best td{color:var(--rest);font-weight:700}
+table.log tr.worst td{color:var(--danger)}
+table.log tr.cur td{color:var(--muted);font-style:italic}
+.empty{color:var(--muted);text-align:center;margin:12px 0 4px;font-size:14px}
+details.cfg>summary{cursor:pointer;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details.cfg>summary::-webkit-details-marker{display:none}
+details.cfg>summary::after{content:"▾";color:var(--muted);transition:transform .15s}
+details.cfg[open]>summary::after{transform:rotate(180deg)}
+details.cfg[open]>summary{margin-bottom:12px}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+fieldset:disabled{opacity:.55}
+.hint{font-size:13px;color:var(--muted);margin:8px 0 0}
+
+/* ring */
+.ringwrap{position:relative;width:min(78vw,340px);aspect-ratio:1;margin:6px auto 4px}
+.ring{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:9}
+.ring .bgc{stroke:var(--surface2)}
+.ring .fg{stroke:var(--c,var(--accent));stroke-linecap:round;stroke-dasharray:1000;stroke-dashoffset:1000;transition:stroke-dashoffset .3s linear}
+.hero.over .ring .fg{stroke:var(--danger)}
+.ringwrap .inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ringwrap .big{font-size:clamp(52px,15vw,88px)}
+.tabs{display:inline-flex;background:var(--surface2);border-radius:12px;padding:4px;gap:4px;margin-bottom:6px;flex-wrap:wrap;justify-content:center}
+.tabs button{border:0;background:transparent;padding:8px 16px;border-radius:9px;font-weight:700;cursor:pointer;color:var(--muted)}
+.tabs button.on{background:var(--surface);color:var(--c);box-shadow:var(--shadow)}
+.dots{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.dots i{width:12px;height:12px;border-radius:50%;background:var(--surface2);border:2px solid var(--line)}
+.dots i.on{background:var(--work);border-color:var(--work)}
+
+/* teach */
+.steps{display:flex;flex-direction:column;gap:8px}
+.step-row{display:grid;grid-template-columns:auto 12px minmax(0,1fr) auto auto;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:var(--surface2)}
+.step-row.off{opacity:.5}
+.step-row .sw{width:12px;height:28px;border-radius:4px}
+.step-row .nm{background:var(--surface)}
+.step-row .mn{display:flex;align-items:center;gap:4px;font-size:14px;color:var(--muted);white-space:nowrap}
+.step-row .mn input{width:72px;background:var(--surface);text-align:right}
+.ops{display:flex;gap:2px}
+.ib{border:0;background:transparent;width:32px;height:32px;border-radius:8px;cursor:pointer;color:var(--muted);font-size:15px}
+.ib:hover:not(:disabled){background:var(--line);color:var(--text)}
+.ib:disabled{opacity:.25;cursor:default}
+@media (max-width:560px){
+  .step-row{grid-template-columns:auto 10px minmax(0,1fr) auto;grid-template-areas:"c s n n" "c s m o"}
+  .step-row>input[type=checkbox]{grid-area:c}.step-row .sw{grid-area:s;height:100%}
+  .step-row .nm{grid-area:n}.step-row .mn{grid-area:m}.step-row .ops{grid-area:o;justify-self:end}
+}
+.alloc{margin:14px 0 6px}
+.alloc-bar,.timeline{display:flex;height:30px;border-radius:9px;overflow:hidden;background:var(--surface2);position:relative}
+.alloc-bar>div,.timeline>div{min-width:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;
+  overflow:hidden;white-space:nowrap;text-overflow:ellipsis;border-right:2px solid var(--surface);padding:0 4px;text-shadow:0 1px 2px rgba(0,0,0,.3)}
+.alloc-bar>.gap{background:repeating-linear-gradient(45deg,var(--surface2),var(--surface2) 6px,var(--line) 6px,var(--line) 12px);color:var(--muted);text-shadow:none}
+.alloc-text{font-size:14px;margin-top:6px;font-weight:600}
+.alloc-text.ok{color:var(--rest)} .alloc-text.under{color:var(--warn)} .alloc-text.over{color:var(--danger)}
+.timeline{height:38px;margin-bottom:12px}
+.timeline>div{opacity:.4}
+.timeline>div.done{opacity:.7}
+.timeline>div.cur{opacity:1}
+.timeline .now{position:absolute;top:-3px;bottom:-3px;width:3px;background:var(--text);border-radius:2px;transform:translateX(-50%);transition:left .3s linear;border:0;padding:0;min-width:0}
+.teach-run .hero{border-top:6px solid var(--c)}
+.d-over{color:var(--danger);font-weight:700}.d-under{color:var(--info);font-weight:700}
+.sdot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:middle}
+
+/* exam */
+.exam-hero{text-align:center;padding:26px 14px}
+.exam-date{color:var(--muted);font-weight:600;font-size:clamp(16px,2.5vw,22px)}
+.exam-clock{font-size:clamp(72px,19vw,210px);font-weight:700;line-height:1;letter-spacing:-.02em;margin:6px 0 10px}
+.exam-subject{font-size:clamp(26px,5vw,48px);font-weight:800;margin:0}
+.exam-range{color:var(--muted);font-size:clamp(17px,2.6vw,24px);font-weight:600}
+.exam-status{display:inline-flex;flex-direction:column;align-items:center;margin-top:16px;padding:10px 26px;border-radius:16px;background:var(--surface2);min-width:min(100%,320px)}
+.exam-status .l{font-weight:700;color:var(--muted)}
+.exam-status .v{font-size:clamp(40px,9vw,84px);font-weight:700;line-height:1.1}
+.exam-status.warn{background:color-mix(in srgb,var(--warn) 18%,var(--surface))}.exam-status.warn .v{color:var(--warn)}
+.exam-status.bad{background:color-mix(in srgb,var(--danger) 16%,var(--surface))}.exam-status.bad .v{color:var(--danger)}
+.exam-notes{white-space:pre-line;font-size:clamp(17px,2.6vw,26px);margin-top:16px;font-weight:600}
+.exam-notes:empty{display:none}
+
+/* speech */
+.speech-hero{transition:background .4s,color .4s}
+.speech-hero[data-light="green"]{background:var(--light-green);color:#fff;border-color:transparent}
+.speech-hero[data-light="yellow"]{background:var(--light-yellow);color:#1a1400;border-color:transparent}
+.speech-hero[data-light="red"]{background:var(--light-red);color:#fff;border-color:transparent}
+.speech-hero[data-light] .phase,.speech-hero[data-light] .sub{color:inherit;opacity:.9}
+.speech-hero[data-light="idle"]{background:var(--surface)}
+.speech-hero[data-light="idle"] .phase{color:var(--muted)}
+.lights{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.lights i{width:22px;height:22px;border-radius:50%;background:rgba(127,127,127,.25);border:2px solid rgba(255,255,255,.35)}
+.lights i.g.on{background:#3bd16f}.lights i.y.on{background:#ffd23f}.lights i.r.on{background:#ff4b55}
+
+/* overlay bits */
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:12px;
+  font-weight:700;opacity:0;pointer-events:none;transition:all .25s;z-index:60;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.25)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+body.flash::after{content:"";position:fixed;inset:0;background:var(--accent);pointer-events:none;z-index:55;animation:fl 1.2s ease-out}
+@keyframes fl{0%{opacity:.45}25%{opacity:0}45%{opacity:.35}100%{opacity:0}}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.45);display:grid;place-items:center;z-index:70;padding:16px}
+.modal .box{background:var(--surface);border-radius:16px;padding:20px;width:min(420px,100%);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal p{margin:0 0 14px;white-space:pre-line}
+.modal .acts{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}
+
+/* fullscreen / presentation */
+:root.fs .cfg,:root.fs .nofs{display:none!important}
+:root.fs main{max-width:none;padding-top:12px}
+:root.fs .big{font-size:clamp(90px,22vw,340px)}
+:root.fs .ringwrap{width:min(70vh,80vw)}
+:root.fs .ringwrap .big{font-size:clamp(70px,13vh,160px)}
+:root.fs .exam-clock{font-size:clamp(100px,24vw,360px)}
+:root.fs .hero .stepname{font-size:clamp(34px,7vw,90px)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="back" id="backBtn" href="#" hidden>‹ 全部計時器</a>
+  <h1 id="pageTitle">計時器工具箱</h1>
+  <button class="iconbtn" id="soundBtn" title="音效開關" aria-label="音效開關">🔔</button>
+  <button class="iconbtn" id="themeBtn" title="切換深淺色" aria-label="切換深淺色">🌓</button>
+  <button class="iconbtn" id="fsBtn" title="全螢幕（F）" aria-label="全螢幕">⛶</button>
+  <a class="iconbtn" id="newTabBtn" target="_blank" rel="noopener" title="在新分頁開啟" aria-label="在新分頁開啟" hidden>↗</a>
+</header>
+<main id="app">
+  <section id="v-home" class="view"></section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+'use strict';
+/* ================= 共用工具 ================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('ystimer:' + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('ystimer:' + k, JSON.stringify(v)); } catch (e) {} }
+};
+const pad = (n, l = 2) => String(n).padStart(l, '0');
+function fmtS(sec) { const h = Math.floor(sec / 3600), m = Math.floor(sec % 3600 / 60), s = sec % 60; return h ? `${h}:${pad(m)}:${pad(s)}` : `${pad(m)}:${pad(s)}`; }
+const up = ms => fmtS(Math.floor(Math.max(0, ms) / 1000));                          // 正向計時
+const down = ms => ms > 0 ? fmtS(Math.ceil(ms / 1000)) : (ms > -1000 ? '00:00' : '+' + fmtS(Math.floor(-ms / 1000))); // 倒數，超時顯示 +
+const cs = ms => `${fmtS(Math.floor(ms / 1000))}.${pad(Math.floor(ms % 1000 / 10))}`;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const todayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+const num = (v, d = 0) => { const n = parseFloat(v); return isFinite(n) ? n : d; };
+
+/* 以真實時間為準的計時器，背景分頁也不會跑慢 */
+class Clock {
+  constructor(o) { this.acc = (o && o.acc) || 0; this.t0 = (o && o.t0) || null; }
+  get on() { return this.t0 !== null; }
+  get ms() { return this.acc + (this.t0 !== null ? Date.now() - this.t0 : 0); }
+  play() { if (this.t0 === null) this.t0 = Date.now(); }
+  pause() { if (this.t0 !== null) { this.acc += Date.now() - this.t0; this.t0 = null; } }
+  toggle() { this.on ? this.pause() : this.play(); }
+  reset() { this.acc = 0; this.t0 = null; }
+  set(ms) { this.acc = ms; if (this.t0 !== null) this.t0 = Date.now(); }
+  toJSON() { return { acc: this.acc, t0: this.t0 }; }
+}
+
+/* 音效 */
+const Sound = {
+  ctx: null, on: store.get('sound', true),
+  unlock() {
+    if (!this.ctx) { try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; } }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+  },
+  tone(freq, dur, type, at, vol) {
+    const c = this.ctx, o = c.createOscillator(), g = c.createGain();
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(vol, at + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, at + dur);
+    o.connect(g); g.connect(c.destination); o.start(at); o.stop(at + dur + 0.05);
+  },
+  beep(n = 1, freq = 880, dur = 0.14, gap = 0.1) {
+    if (!this.on) return; this.unlock(); if (!this.ctx) return;
+    let t = this.ctx.currentTime + 0.02;
+    for (let i = 0; i < n; i++) { this.tone(freq, dur, 'sine', t, 0.35); t += dur + gap; }
+  },
+  bell(n = 1) { // 類似按鈴的叮聲
+    if (!this.on) return; this.unlock(); if (!this.ctx) return;
+    let t = this.ctx.currentTime + 0.02;
+    for (let i = 0; i < n; i++) { this.tone(1320, 0.9, 'triangle', t, 0.45); this.tone(2640, 0.5, 'sine', t, 0.12); t += 0.38; }
+  }
+};
+document.addEventListener('pointerdown', () => Sound.unlock());
+document.addEventListener('keydown', () => Sound.unlock());
+
+let toastTimer;
+function toast(msg, ms = 2600) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), ms); }
+function flash() { document.body.classList.remove('flash'); void document.body.offsetWidth; document.body.classList.add('flash'); setTimeout(() => document.body.classList.remove('flash'), 1300); }
+function vib(p) { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} }
+function alarm(msg, { bell = 1, beep = 0 } = {}) { if (bell) Sound.bell(bell); if (beep) Sound.beep(beep); if (msg) toast(msg, 4000); flash(); vib([200, 100, 200]); }
+function copyText(text) {
+  const fallback = () => { const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select(); let ok = false; try { ok = document.execCommand('copy'); } catch (e) {} ta.remove(); toast(ok ? '已複製到剪貼簿' : '複製失敗，請手動選取'); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(text).then(() => toast('已複製到剪貼簿'), fallback); else fallback();
+}
+/* 自製確認／輸入框（嵌入協作平台時瀏覽器內建的 confirm 可能被封鎖） */
+function ask(msg, { ok = '確定', cancel = '取消', input = null, danger = false } = {}) {
+  return new Promise(res => {
+    const m = document.createElement('div'); m.className = 'modal';
+    m.innerHTML = `<div class="box" role="dialog" aria-modal="true"><p>${esc(msg)}</p>${input !== null ? `<input id="askIn" value="${esc(input)}">` : ''}
+      <div class="acts"><button class="btn" data-r="0">${esc(cancel)}</button><button class="btn ${danger ? 'danger' : 'primary'}" data-r="1">${esc(ok)}</button></div></div>`;
+    document.body.appendChild(m);
+    const inp = $('#askIn', m); (inp || $('[data-r="1"]', m)).focus(); if (inp) inp.select();
+    const done = r => { m.remove(); res(input !== null ? (r ? inp.value.trim() : null) : r); };
+    m.addEventListener('click', e => { const b = e.target.closest('[data-r]'); if (b) done(b.dataset.r === '1'); else if (e.target === m) done(false); });
+    m.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Escape') done(false); if (e.key === 'Enter') done(true); });
+  });
+}
+const ringSVG = id => `<svg class="ring" viewBox="0 0 200 200" aria-hidden="true"><circle class="bgc" cx="100" cy="100" r="90"/><circle class="fg" id="${id}" cx="100" cy="100" r="90" pathLength="1000"/></svg>`;
+const setRing = (el, p) => { el.style.strokeDashoffset = String(1000 * (1 - Math.min(1, Math.max(0, p)))); };
+/* 只在內容改變時才更新 DOM */
+function T(el, txt) { if (el && el.textContent !== txt) el.textContent = txt; }
+
+/* 螢幕常亮 */
+const Wake = {
+  lock: null, busy: false,
+  async want(on) {
+    if (this.busy || !('wakeLock' in navigator)) return;
+    try {
+      this.busy = true;
+      if (on && !this.lock && document.visibilityState === 'visible') { this.lock = await navigator.wakeLock.request('screen'); this.lock.addEventListener('release', () => { this.lock = null; }); }
+      else if (!on && this.lock) { await this.lock.release(); this.lock = null; }
+    } catch (e) {} finally { this.busy = false; }
+  }
+};
+
+/* ================= 1. 重訓計時器 ================= */
+const EXERCISES = ['高拉下','滑輪下拉','引體向上','槓鈴划船','坐姿划船','單臂啞鈴划船','直臂下壓','二頭彎舉','錘式彎舉','槓鈴臥推','上斜啞鈴臥推','雙槓撐體','蝴蝶機夾胸','啞鈴肩推','側平舉','反向飛鳥','三頭下壓','過頭三頭伸展','深蹲','硬舉','羅馬尼亞硬舉','腿推','保加利亞分腿蹲','腿伸屈','腿後勾','小腿提踵','棒式'];
+const gym = {
+  id: 'gym', name: '重訓計時器', icon: '🏋️', cat: '運動健身', desc: '總時間正計時、每組訓練計時、組間休息倒數，自動記錄每一組',
+  html: `
+  <div class="stats">
+    <div class="stat"><span class="l">總時間</span><span class="v mono" data-k="total">00:00</span></div>
+    <div class="stat"><span class="l">完成組數</span><span class="v mono" data-k="sets">0</span></div>
+    <div class="stat"><span class="l">累計訓練</span><span class="v mono" data-k="sumw">00:00</span></div>
+    <div class="stat"><span class="l">累計休息</span><span class="v mono" data-k="sumr">00:00</span></div>
+  </div>
+  <div class="card hero" data-k="hero" data-phase="idle">
+    <div class="phase" data-k="phase">準備開始</div>
+    <div class="big mono" data-k="big">00:00</div>
+    <div class="sub" data-k="sub">輸入動作、選好休息時間後按「開始訓練」</div>
+    <div class="bar"><i data-k="bar"></i></div>
+  </div>
+  <div class="row"><button class="btn primary xl" data-act="main" data-k="main">開始訓練</button></div>
+  <div class="row">
+    <button class="btn" data-act="rest-">休息 −15 秒</button>
+    <button class="btn" data-act="rest+">休息 +15 秒</button>
+    <button class="btn" data-act="pause" data-k="pause">暫停</button>
+    <button class="btn danger" data-act="finish" data-k="finish">結束訓練</button>
+  </div>
+  <div class="card cfg">
+    <div class="field-row">
+      <label class="field grow">動作名稱<input data-k="ex" list="gymExList" placeholder="例：高拉下（換動作時組數自動歸 1）"></label>
+      <div class="field">目前第幾組<div class="stepper"><button data-act="set-" aria-label="減一組">−</button><span data-k="setno">1</span><button data-act="set+" aria-label="加一組">+</button></div></div>
+    </div>
+    <datalist id="gymExList">${EXERCISES.map(x => `<option value="${x}">`).join('')}</datalist>
+    <div class="lbl-line">組間休息時間</div>
+    <div class="chips" data-k="chips">
+      ${[30, 45, 60, 90, 120, 150, 180, 240].map(v => `<button class="chip" data-act="restp" data-v="${v}">${v >= 60 ? (v % 60 ? (v / 60).toFixed(1).replace('.0', '') + ' 分' : v / 60 + ' 分') : v + ' 秒'}</button>`).join('')}
+      <span style="display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)">自訂 <input type="number" min="5" step="5" data-k="custom" placeholder="秒"> 秒</span>
+    </div>
+    <label class="check"><input type="checkbox" data-k="auto"> 休息結束後自動開始下一組</label>
+    <p class="hint">快捷鍵：空白鍵 = 主按鈕（開始／完成本組／下一組）。休息剩 3 秒會嗶聲倒數。</p>
+  </div>
+  <div class="card">
+    <div class="card-head"><h3>訓練紀錄</h3><div class="chips"><button class="btn sm" data-act="copy">複製紀錄</button><button class="btn sm danger" data-act="clear">清除</button></div></div>
+    <table class="log"><thead><tr><th>#</th><th>動作</th><th class="num">組</th><th class="num">訓練</th><th class="num">休息</th></tr></thead><tbody data-k="log"></tbody></table>
+    <p class="empty" data-k="empty">尚無紀錄，完成第一組後會出現在這裡</p>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.s = { phase: 'idle', paused: false, restSel: 90, restDur: 90000, setNo: 1, ex: '', log: [], auto: false };
+    this.total = new Clock(); this.work = new Clock(); this.rest = new Clock();
+    const saved = store.get('gym', null);
+    if (saved && saved.s) { Object.assign(this.s, saved.s); this.total = new Clock(saved.total); this.work = new Clock(saved.work); this.rest = new Clock(saved.rest); }
+    this.ended = this.s.phase === 'rest' && this.restRemain() <= 0; this.lastSec = null;
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.k.ex.value = this.s.ex;
+    this.k.ex.addEventListener('change', () => { const v = this.k.ex.value.trim(); if (v !== this.s.ex) { this.s.ex = v; this.s.setNo = 1; this.save(); this.render(); } });
+    this.k.auto.checked = this.s.auto;
+    this.k.auto.addEventListener('change', () => { this.s.auto = this.k.auto.checked; this.save(); });
+    this.k.custom.addEventListener('change', () => { const v = Math.round(num(this.k.custom.value)); if (v >= 5) { this.setRest(v); this.save(); this.render(); } });
+    this.renderChips(); this.renderLog();
+  },
+  restRemain() { return this.s.restDur - this.rest.ms; },
+  running() { return (this.s.phase === 'work' || this.s.phase === 'rest') && !this.s.paused; },
+  save() { store.set('gym', { s: this.s, total: this.total, work: this.work, rest: this.rest }); },
+  toggle() { this.act('main'); },
+  async act(a, b) {
+    const s = this.s;
+    switch (a) {
+      case 'main':
+        if (s.phase === 'idle') { this.total.reset(); this.total.play(); this.startWork(); Sound.beep(1, 880); }
+        else if (s.phase === 'work') this.endSet();
+        else if (s.phase === 'rest') this.nextSet();
+        else if (s.phase === 'done') { if (s.log.length && !await ask('開始新的訓練會清除這次的紀錄（可先按「複製紀錄」保存），確定嗎？')) return; this.resetAll(); }
+        break;
+      case 'pause': this.togglePause(); break;
+      case 'rest-': this.adjRest(-15); break;
+      case 'rest+': this.adjRest(15); break;
+      case 'finish': await this.finish(); break;
+      case 'set-': s.setNo = Math.max(1, s.setNo - 1); break;
+      case 'set+': s.setNo++; break;
+      case 'restp': this.setRest(+b.dataset.v); break;
+      case 'copy': this.copy(); return;
+      case 'clear':
+        if (!s.log.length) return;
+        if (await ask('清除所有訓練紀錄？', { ok: '清除', danger: true })) { s.log = []; if (s.phase === 'done') this.resetAll(); this.renderLog(); }
+        break;
+    }
+    this.save(); this.render();
+  },
+  startWork() { const s = this.s; s.phase = 'work'; s.paused = false; this.work.reset(); this.work.play(); this.total.play(); },
+  endSet() {
+    const s = this.s; this.work.pause();
+    s.log.push({ ex: s.ex || '（未命名動作）', set: s.setNo, work: this.work.ms, rest: null });
+    s.setNo++; this.work.reset(); s.phase = 'rest'; s.paused = false;
+    this.rest.reset(); this.rest.play(); this.total.play();
+    this.ended = false; this.lastSec = null; Sound.beep(1, 523, 0.18); this.renderLog();
+  },
+  nextSet() { const s = this.s, last = s.log[s.log.length - 1]; if (last && last.rest == null) last.rest = this.rest.ms; this.rest.reset(); this.startWork(); Sound.beep(2, 988, 0.1); this.renderLog(); },
+  togglePause() {
+    const s = this.s; if (s.phase !== 'work' && s.phase !== 'rest') return;
+    const c = s.phase === 'work' ? this.work : this.rest;
+    s.paused = !s.paused; if (s.paused) { this.total.pause(); c.pause(); } else { this.total.play(); c.play(); }
+  },
+  adjRest(d) { this.s.restDur = Math.max(5000, this.s.restDur + d * 1000); if (this.restRemain() > 0) this.ended = false; },
+  setRest(v) { const s = this.s; s.restSel = v; s.restDur = v * 1000; if (s.phase === 'rest') this.ended = this.restRemain() <= 0; this.renderChips(); },
+  async finish() {
+    const s = this.s; if (s.phase === 'idle' || s.phase === 'done') return;
+    if (!await ask('結束這次訓練？')) return;
+    if (s.phase === 'work' && this.work.ms >= 3000) { s.log.push({ ex: s.ex || '（未命名動作）', set: s.setNo, work: this.work.ms, rest: null }); s.setNo++; }
+    if (s.phase === 'rest') { const last = s.log[s.log.length - 1]; if (last && last.rest == null) last.rest = this.rest.ms; }
+    this.total.pause(); this.work.pause(); this.rest.pause(); s.phase = 'done'; s.paused = false;
+    this.renderLog(); Sound.bell(2);
+  },
+  resetAll() { const s = this.s; s.phase = 'idle'; s.paused = false; s.log = []; s.setNo = 1; this.total.reset(); this.work.reset(); this.rest.reset(); this.renderLog(); },
+  sums() {
+    const s = this.s;
+    return { w: s.log.reduce((a, x) => a + x.work, 0) + (s.phase === 'work' ? this.work.ms : 0),
+             r: s.log.reduce((a, x) => a + (x.rest || 0), 0) + (s.phase === 'rest' ? this.rest.ms : 0) };
+  },
+  copy() {
+    const s = this.s; if (!s.log.length) { toast('還沒有紀錄'); return; }
+    const sm = this.sums(), rests = s.log.filter(x => x.rest != null);
+    const avg = rests.length ? up(rests.reduce((a, x) => a + x.rest, 0) / rests.length) : '-';
+    const lines = [`重訓紀錄 ${new Date().toLocaleDateString('zh-TW')}`, `總時間 ${up(this.total.ms)}｜${s.log.length} 組｜訓練 ${up(sm.w)}｜休息 ${up(sm.r)}｜平均休息 ${avg}`, '',
+      ...s.log.map((x, i) => `${i + 1}. ${x.ex} 第${x.set}組　訓練 ${up(x.work)}　休息 ${x.rest == null ? '-' : up(x.rest)}`)];
+    copyText(lines.join('\n'));
+  },
+  renderChips() { $$('.chip', this.k.chips).forEach(c => c.classList.toggle('on', +c.dataset.v === this.s.restSel)); if (![30, 45, 60, 90, 120, 150, 180, 240].includes(this.s.restSel)) this.k.custom.value = this.s.restSel; },
+  renderLog() {
+    const L = this.s.log;
+    this.k.log.innerHTML = L.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.ex)}</td><td class="num">${x.set}</td><td class="num">${up(x.work)}</td><td class="num">${x.rest == null ? '—' : up(x.rest)}</td></tr>`).reverse().join('');
+    this.k.empty.hidden = L.length > 0;
+  },
+  logic() {
+    const s = this.s; if (s.phase !== 'rest' || s.paused) return;
+    const r = this.restRemain(), sec = Math.ceil(r / 1000);
+    if (r > 0 && sec <= 3 && sec !== this.lastSec) { this.lastSec = sec; Sound.beep(1, 660, 0.09); }
+    if (r <= 0 && !this.ended) {
+      this.ended = true; alarm('休息結束，開始下一組！', { bell: 0 }); Sound.beep(1, 1046, 0.5);
+      if (s.auto) { this.nextSet(); this.save(); }
+    }
+  },
+  title() { const s = this.s; if (s.phase === 'rest') return down(this.restRemain()); if (s.phase === 'work') return up(this.work.ms); return null; },
+  render() {
+    const s = this.s, k = this.k, sm = this.sums(), ex = s.ex || '未命名動作';
+    T(k.total, up(this.total.ms)); T(k.sets, String(s.log.length)); T(k.sumw, up(sm.w)); T(k.sumr, up(sm.r)); T(k.setno, String(s.setNo));
+    k.hero.dataset.phase = s.phase === 'idle' ? 'done' : s.phase;
+    let phase = '', big = '00:00', sub = '', bar = 0, over = false;
+    if (s.phase === 'idle') { phase = '準備開始'; sub = `第一組：${ex} 第 ${s.setNo} 組`; }
+    else if (s.phase === 'work') { phase = `訓練中 · ${ex} 第 ${s.setNo} 組`; big = up(this.work.ms); sub = `完成後按「完成本組」進入 ${up(s.restDur)} 休息`; }
+    else if (s.phase === 'rest') {
+      const r = this.restRemain(); over = r <= 0; phase = over ? '休息時間到！' : '組間休息'; big = down(r);
+      bar = Math.min(100, this.rest.ms / s.restDur * 100); sub = `下一組：${ex} 第 ${s.setNo} 組（休息設定 ${up(s.restDur)}）`;
+    } else { phase = '訓練完成 💪'; big = up(this.total.ms); sub = `共 ${s.log.length} 組｜訓練 ${up(sm.w)}｜休息 ${up(sm.r)}`; }
+    if (s.paused) phase += '（已暫停）';
+    T(k.phase, phase); T(k.big, big); T(k.sub, sub); k.bar.style.width = bar + '%'; k.hero.classList.toggle('over', over);
+    T(k.main, { idle: '開始訓練', work: '完成本組 → 休息', rest: '開始下一組', done: '開始新的訓練' }[s.phase]);
+    T(k.pause, s.paused ? '繼續' : '暫停');
+    k.pause.disabled = k.finish.disabled = !(s.phase === 'work' || s.phase === 'rest');
+  }
+};
+
+/* ================= 2. 番茄鐘 ================= */
+const pomo = {
+  id: 'pomodoro', name: '番茄鐘', icon: '🍅', cat: '專注學習', desc: '25 分鐘專注＋短休息循環，每 4 輪自動安排長休息',
+  html: `
+  <div class="card hero" data-k="hero" data-phase="focus">
+    <div class="tabs" data-k="tabs"><button data-act="mode" data-m="focus">專注</button><button data-act="mode" data-m="short">短休息</button><button data-act="mode" data-m="long">長休息</button></div>
+    <div class="ringwrap">${ringSVG('pomoRing')}<div class="inner"><div class="phase" data-k="phase">專注</div><div class="big mono" data-k="big">25:00</div></div></div>
+    <div class="dots" data-k="dots"></div>
+    <div class="sub" data-k="sub" style="margin-top:8px"></div>
+  </div>
+  <div class="row">
+    <button class="btn" data-act="reset">重設</button>
+    <button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button>
+    <button class="btn" data-act="skip">跳過 ⏭</button>
+  </div>
+  <div class="card cfg">
+    <label class="field">這一輪要做什麼（選填）<input data-k="task" placeholder="例：批改 301 作業"></label>
+  </div>
+  <details class="card cfg">
+    <summary>番茄鐘設定</summary>
+    <div class="field-row">
+      <label class="field">專注（分）<input type="number" min="1" data-c="focus"></label>
+      <label class="field">短休息（分）<input type="number" min="1" data-c="short"></label>
+      <label class="field">長休息（分）<input type="number" min="1" data-c="long"></label>
+      <label class="field">幾輪後長休息<input type="number" min="2" data-c="every"></label>
+    </div>
+    <label class="check"><input type="checkbox" data-c="auto"> 時間到自動開始下一段</label>
+  </details>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.cfg = Object.assign({ focus: 25, short: 5, long: 15, every: 4, auto: false }, store.get('pomoCfg', {}));
+    this.mode = 'focus'; this.clock = new Clock(); this.cycle = 0;
+    const t = store.get('pomoToday', null); this.today = t && t.d === todayKey() ? t : { d: todayKey(), n: 0 };
+    this.k.task.value = store.get('pomoTask', '');
+    this.k.task.addEventListener('input', () => store.set('pomoTask', this.k.task.value));
+    this.ring = $('#pomoRing', el);
+    $$('[data-c]', el).forEach(inp => {
+      if (inp.type === 'checkbox') inp.checked = this.cfg[inp.dataset.c]; else inp.value = this.cfg[inp.dataset.c];
+      inp.addEventListener('change', () => {
+        const c = inp.dataset.c; this.cfg[c] = inp.type === 'checkbox' ? inp.checked : Math.max(c === 'every' ? 2 : 1, Math.round(num(inp.value, this.cfg[c])));
+        if (inp.type !== 'checkbox') inp.value = this.cfg[c]; store.set('pomoCfg', this.cfg); this.renderDots(); this.render();
+      });
+    });
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.renderDots();
+  },
+  dur() { return this.cfg[this.mode] * 60000; },
+  remain() { return this.dur() - this.clock.ms; },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') { this.clock.toggle(); if (this.clock.on) Sound.beep(1, 880); }
+    else if (a === 'reset') this.clock.reset();
+    else if (a === 'skip') this.complete(true);
+    else if (a === 'mode') { this.mode = b.dataset.m; this.clock.reset(); this.renderDots(); }
+    this.render();
+  },
+  complete(skipped) {
+    const wasFocus = this.mode === 'focus', wasOn = this.clock.on;
+    if (wasFocus) {
+      if (!skipped) { this.cycle++; if (this.today.d !== todayKey()) this.today = { d: todayKey(), n: 0 }; this.today.n++; store.set('pomoToday', this.today); }
+      this.mode = !skipped && this.cycle % this.cfg.every === 0 ? 'long' : 'short';
+    } else this.mode = 'focus';
+    this.clock.reset();
+    if (skipped ? wasOn : this.cfg.auto) this.clock.play();
+    if (!skipped) alarm(wasFocus ? (this.mode === 'long' ? '完成一組番茄！來個長休息吧' : '專注結束，休息一下！') : '休息結束，回到專注！', { bell: wasFocus ? 2 : 1 });
+    this.renderDots(); this.render();
+  },
+  logic() { if (this.clock.on && this.remain() <= 0) this.complete(false); },
+  title() { return this.clock.on || this.clock.ms > 0 ? down(this.remain()) : null; },
+  renderDots() {
+    const n = this.cfg.every; let filled = this.cycle % n; if (this.cycle > 0 && filled === 0 && this.mode === 'long') filled = n;
+    this.k.dots.innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < filled ? 'on' : ''}"></i>`).join('');
+  },
+  render() {
+    const k = this.k, names = { focus: '專注', short: '短休息', long: '長休息' };
+    k.hero.dataset.phase = this.mode;
+    $$('button', k.tabs).forEach(b => b.classList.toggle('on', b.dataset.m === this.mode));
+    T(k.phase, names[this.mode] + (this.clock.ms > 0 && !this.clock.on ? '・暫停' : ''));
+    T(k.big, down(Math.max(0, this.remain()))); setRing(this.ring, this.clock.ms / this.dur());
+    T(k.toggle, this.clock.on ? '暫停' : (this.clock.ms > 0 ? '繼續' : '開始'));
+    T(k.sub, `今天已完成 ${this.today.d === todayKey() ? this.today.n : 0} 個番茄`);
+  }
+};
+
+/* ================= 3. 試教計時器 ================= */
+const COLORS = ['#e07a3f', '#d39e12', '#4fa262', '#2c8f8a', '#3b7bd0', '#8a63c9', '#c9578a', '#7d8a92', '#b5651d', '#5d8f2f'];
+const TEACH_DEFAULT = () => ({ total: 20, auto: true, warn: 30, steps: [
+  { name: '進場與問好', min: 1, on: true, c: 0 }, { name: '引起動機', min: 3, on: true, c: 1 },
+  { name: '連結先備經驗', min: 2, on: true, c: 2 }, { name: '主要內容', min: 7, on: true, c: 3 },
+  { name: '實作', min: 4, on: true, c: 4 }, { name: '統整', min: 2, on: true, c: 5 },
+  { name: '回家作業', min: 1, on: true, c: 6 }, { name: '其他', min: 0, on: false, c: 7 }] });
+const fmtMin = m => String(Math.round(m * 100) / 100);
+function roundHalves(vals, target) { // 四捨五入到 0.5 分，總和調整成 target
+  const r = vals.map(v => Math.round(v * 2) / 2); let diff = Math.round((target - r.reduce((a, b) => a + b, 0)) * 2) / 2;
+  if (diff && r.length) { const i = r.indexOf(Math.max(...r)); r[i] = Math.max(0, r[i] + diff); }
+  return r;
+}
+const teach = {
+  id: 'teach', name: '試教計時器', icon: '🧑‍🏫', cat: '教學課堂', desc: '設定總時間與教學步驟分配，上課時顯示目前步驟、剩餘時間與是否超時',
+  html: `
+  <div data-k="setup">
+    <div class="card">
+      <div class="field-row">
+        <label class="field">總時間（分鐘）<input type="number" min="1" step="1" data-k="total"></label>
+        <div class="chips" style="padding-bottom:4px">${[10, 15, 20, 25, 30, 45, 50].map(v => `<button class="chip" data-act="tot" data-v="${v}">${v} 分</button>`).join('')}</div>
+      </div>
+      <div class="alloc"><div class="alloc-bar" data-k="allocbar"></div><div class="alloc-text" data-k="alloctext"></div></div>
+      <div class="chips" style="margin-top:10px">
+        <button class="btn sm" data-act="fit">依比例縮放到總時間</button>
+        <button class="btn sm" data-act="even">平均分配</button>
+        <button class="btn sm" data-act="add">＋ 新增步驟</button>
+        <button class="btn sm danger" data-act="default">恢復預設步驟</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>教學步驟與時間分配</h3><span class="hint" style="margin:0">勾選要使用的步驟，可改名稱、時間（可填 0.5 分）與順序</span></div>
+      <div class="steps" data-k="steps"></div>
+    </div>
+    <div class="card">
+      <div class="field-row" style="margin-bottom:0">
+        <label class="field">剩餘多少時提醒<select data-k="warn"><option value="0">不提醒</option><option value="15">15 秒</option><option value="30">30 秒</option><option value="60">1 分鐘</option></select></label>
+        <label class="check" style="margin:0 0 8px"><input type="checkbox" data-k="auto"> 步驟時間到自動進入下一步</label>
+      </div>
+      <p class="hint">不勾「自動進入」時，時間到會響鈴並顯示超時，由你按「下一步」切換——比較貼近實際試教。</p>
+    </div>
+    <div class="card">
+      <div class="card-head"><h3>我的方案</h3></div>
+      <div class="field-row" style="margin-bottom:0">
+        <label class="field grow">已儲存的方案<select data-k="preset"></select></label>
+        <div class="chips" style="padding-bottom:2px"><button class="btn sm" data-act="pload">載入</button><button class="btn sm" data-act="psave">另存方案</button><button class="btn sm danger" data-act="pdel">刪除</button></div>
+      </div>
+    </div>
+    <div class="row"><button class="btn primary xl" data-act="start">開始試教 ▶</button></div>
+  </div>
+
+  <div data-k="run" class="teach-run" hidden>
+    <div class="card hero" data-k="hero">
+      <div class="phase" data-k="idx">步驟 1 / 7</div>
+      <div class="stepname" data-k="name">—</div>
+      <div class="big mono" data-k="big">00:00</div>
+      <div class="bar"><i data-k="bar"></i></div>
+      <div class="sub" data-k="next"></div>
+    </div>
+    <div class="timeline" data-k="timeline"></div>
+    <div class="stats">
+      <div class="stat"><span class="l">已進行</span><span class="v mono" data-k="el">00:00</span></div>
+      <div class="stat"><span class="l">總剩餘</span><span class="v mono" data-k="left">00:00</span></div>
+      <div class="stat" data-k="schedbox"><span class="l">時間表</span><span class="v" data-k="sched" style="font-size:19px">照表進行</span></div>
+    </div>
+    <div class="row">
+      <button class="btn" data-act="prev" data-k="prev">◀ 上一步</button>
+      <button class="btn" data-act="pause" data-k="pause">暫停</button>
+      <button class="btn primary" data-act="next" data-k="nextbtn">下一步 ▶</button>
+      <button class="btn danger" data-act="stop">結束</button>
+    </div>
+    <p class="hint nofs" style="text-align:center">快捷鍵：空白鍵 暫停／繼續，← → 切換步驟，F 全螢幕（投影時好用）</p>
+  </div>
+
+  <div data-k="result" hidden>
+    <div class="card hero" data-phase="done"><div class="phase">試教結束</div><div class="big mono" data-k="rtotal">00:00</div><div class="sub" data-k="rsub"></div></div>
+    <div class="card">
+      <div class="card-head"><h3>各步驟預計 vs 實際</h3><button class="btn sm" data-act="rcopy">複製結果</button></div>
+      <table class="log"><thead><tr><th>步驟</th><th class="num">預計</th><th class="num">實際</th><th class="num">差異</th></tr></thead><tbody data-k="rtable"></tbody></table>
+    </div>
+    <div class="row"><button class="btn" data-act="tosetup">回到設定</button><button class="btn primary" data-act="start">再試一次</button></div>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.cfg = store.get('teachCfg', null) || TEACH_DEFAULT();
+    this.presets = store.get('teachPresets', {});
+    this.view = 'setup'; this.clock = new Clock(); this.run = null;
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act, b); });
+    this.k.total.addEventListener('input', () => { this.cfg.total = Math.max(0, num(this.k.total.value)); this.save(); this.renderAlloc(); });
+    this.k.auto.addEventListener('change', () => { this.cfg.auto = this.k.auto.checked; this.save(); });
+    this.k.warn.addEventListener('change', () => { this.cfg.warn = +this.k.warn.value; this.save(); });
+    const onField = e => {
+      const row = e.target.closest('.step-row'), f = e.target.dataset.f; if (!row || !f) return;
+      const st = this.cfg.steps[+row.dataset.i];
+      if (f === 'on') { st.on = e.target.checked; row.classList.toggle('off', !st.on); }
+      else if (f === 'name') st.name = e.target.value;
+      else if (f === 'min') st.min = Math.max(0, num(e.target.value));
+      this.save(); this.renderAlloc();
+    };
+    this.k.steps.addEventListener('input', onField); this.k.steps.addEventListener('change', onField);
+    this.renderSetup();
+  },
+  save() { store.set('teachCfg', this.cfg); },
+  running() { return this.view === 'run' && this.clock.on; },
+  toggle() { if (this.view === 'run') this.act('pause'); },
+  key(e) {
+    if (this.view !== 'run') return false;
+    if (e.key === 'ArrowRight') { this.act('next'); return true; }
+    if (e.key === 'ArrowLeft') { this.act('prev'); return true; }
+    return false;
+  },
+  async act(a, b) {
+    const c = this.cfg, st = c.steps;
+    switch (a) {
+      case 'tot': c.total = +b.dataset.v; break;
+      case 'fit': {
+        const on = st.filter(s => s.on && s.min > 0), sum = on.reduce((x, s) => x + s.min, 0);
+        if (!sum) { toast('請先為步驟設定時間'); return; }
+        const r = roundHalves(on.map(s => s.min * c.total / sum), c.total); on.forEach((s, i) => s.min = r[i]); break;
+      }
+      case 'even': {
+        const on = st.filter(s => s.on); if (!on.length) { toast('請先勾選步驟'); return; }
+        const r = roundHalves(on.map(() => c.total / on.length), c.total); on.forEach((s, i) => s.min = r[i]); break;
+      }
+      case 'add': { const used = st.map(s => s.c); let ci = 0; while (used.includes(ci) && ci < COLORS.length - 1) ci++; st.push({ name: '新步驟', min: 2, on: true, c: used.includes(ci) ? st.length : ci }); break; }
+      case 'default': if (!await ask('恢復預設的 8 個教學步驟與 20 分鐘配置？')) return; this.cfg = TEACH_DEFAULT(); break;
+      case 'up': case 'down': case 'del': {
+        const i = +b.closest('.step-row').dataset.i;
+        if (a === 'del') { if (st.length <= 1) return; st.splice(i, 1); }
+        else { const j = a === 'up' ? i - 1 : i + 1; if (j < 0 || j >= st.length) return; [st[i], st[j]] = [st[j], st[i]]; }
+        break;
+      }
+      case 'psave': {
+        const name = await ask('為這個方案命名：', { input: `${c.total} 分鐘試教`, ok: '儲存' }); if (!name) return;
+        this.presets[name] = JSON.parse(JSON.stringify(c)); store.set('teachPresets', this.presets); this.renderPresets(name); toast(`已儲存「${name}」`); return;
+      }
+      case 'pload': { const n = this.k.preset.value; if (!n || !this.presets[n]) { toast('還沒有儲存的方案'); return; } this.cfg = JSON.parse(JSON.stringify(this.presets[n])); toast(`已載入「${n}」`); break; }
+      case 'pdel': { const n = this.k.preset.value; if (!n || !this.presets[n]) return; if (!await ask(`刪除方案「${n}」？`, { ok: '刪除', danger: true })) return; delete this.presets[n]; store.set('teachPresets', this.presets); this.renderPresets(); return; }
+      case 'start': await this.start(); return;
+      case 'pause': this.clock.toggle(); this.renderRun(); return;
+      case 'next': this.next(); return;
+      case 'prev': if (this.run.idx > 0) this.go(this.run.idx - 1); return;
+      case 'stop': if (await ask('結束這次試教並查看結果？')) this.finish(); return;
+      case 'tosetup': this.show('setup'); this.renderSetup(); return;
+      case 'rcopy': this.copyResult(); return;
+      default: return;
+    }
+    this.save(); this.renderSetup();
+  },
+  async start() {
+    const steps = this.cfg.steps.filter(s => s.on && s.min > 0).map(s => ({ name: s.name.trim() || '（未命名）', dur: Math.round(s.min * 60000), c: s.c }));
+    if (!steps.length) { toast('請至少勾選一個步驟並設定時間'); return; }
+    const sum = steps.reduce((a, s) => a + s.dur, 0), target = this.cfg.total * 60000;
+    if (this.view === 'setup' && Math.abs(sum - target) >= 1000 && !await ask(`步驟加總是 ${fmtMin(sum / 60000)} 分鐘，和總時間 ${fmtMin(this.cfg.total)} 分鐘不同。\n要照步驟加總開始嗎？`, { ok: '照樣開始' })) return;
+    this.run = { steps, idx: 0, actual: steps.map(() => 0), warned: [], ended: [], plan: sum };
+    this.clock.reset(); this.clock.play(); this.show('run'); this.buildTimeline(); this.renderRun(); Sound.beep(1, 880);
+  },
+  show(v) { this.view = v; this.k.setup.hidden = v !== 'setup'; this.k.run.hidden = v !== 'run'; this.k.result.hidden = v !== 'result'; window.scrollTo(0, 0); },
+  go(i) {
+    const r = this.run; r.actual[r.idx] = this.clock.ms; r.idx = i; this.clock.set(r.actual[i]);
+    this.buildTimeline(); this.renderRun(); Sound.beep(1, 880, 0.12);
+  },
+  next() { const r = this.run; if (r.idx >= r.steps.length - 1) this.finish(); else this.go(r.idx + 1); },
+  finish() { const r = this.run; r.actual[r.idx] = this.clock.ms; this.clock.pause(); this.show('result'); this.renderResult(); Sound.bell(3); },
+  elapsed() { const r = this.run; return r.actual.reduce((a, x, i) => a + (i === r.idx ? this.clock.ms : x), 0); },
+  logic() {
+    if (this.view !== 'run' || !this.clock.on) return;
+    const r = this.run, st = r.steps[r.idx], rem = st.dur - this.clock.ms, w = this.cfg.warn * 1000;
+    if (w > 0 && !r.warned[r.idx] && st.dur > w && rem <= w && rem > 0) { r.warned[r.idx] = true; Sound.beep(2, 880, 0.1); toast(`「${st.name}」剩 ${w >= 60000 ? w / 60000 + ' 分鐘' : w / 1000 + ' 秒'}`); }
+    if (rem <= 0 && !r.ended[r.idx]) {
+      r.ended[r.idx] = true; const last = r.idx === r.steps.length - 1;
+      if (this.cfg.auto) { if (last) { this.finish(); return; } Sound.bell(1); flash(); this.go(r.idx + 1); toast(`下一步：${r.steps[r.idx].name}`); }
+      else alarm(last ? '最後一個步驟時間到，請準備結束' : `「${st.name}」時間到，請進入下一步`, { bell: 2 });
+    }
+  },
+  title() { if (this.view !== 'run') return null; const st = this.run.steps[this.run.idx]; return down(st.dur - this.clock.ms) + ' ' + st.name; },
+  render() { if (this.view === 'run') this.renderRun(); },
+  renderSetup() {
+    const c = this.cfg, n = c.steps.length;
+    this.k.total.value = c.total; this.k.auto.checked = c.auto; this.k.warn.value = String(c.warn);
+    $$('[data-act="tot"]', this.el).forEach(b => b.classList.toggle('on', +b.dataset.v === c.total));
+    this.k.steps.innerHTML = c.steps.map((s, i) => `<div class="step-row${s.on ? '' : ' off'}" data-i="${i}">
+      <input type="checkbox" data-f="on" ${s.on ? 'checked' : ''} aria-label="使用此步驟">
+      <span class="sw" style="background:${COLORS[s.c % COLORS.length]}"></span>
+      <input class="nm" data-f="name" value="${esc(s.name)}" aria-label="步驟名稱">
+      <span class="mn"><input type="number" data-f="min" min="0" step="0.5" value="${s.min}" aria-label="分鐘">分</span>
+      <span class="ops"><button class="ib" data-act="up" ${i === 0 ? 'disabled' : ''} aria-label="上移">↑</button><button class="ib" data-act="down" ${i === n - 1 ? 'disabled' : ''} aria-label="下移">↓</button><button class="ib" data-act="del" ${n <= 1 ? 'disabled' : ''} aria-label="刪除">✕</button></span></div>`).join('');
+    this.renderAlloc(); this.renderPresets(this.k.preset.value);
+  },
+  renderAlloc() {
+    const c = this.cfg, on = c.steps.filter(s => s.on && s.min > 0), sum = on.reduce((a, s) => a + s.min, 0), tot = c.total || 0, diff = tot - sum;
+    const scale = Math.max(sum, tot) || 1;
+    this.k.allocbar.innerHTML = on.map(s => `<div style="flex:${s.min / scale};background:${COLORS[s.c % COLORS.length]}" title="${esc(s.name)} ${fmtMin(s.min)} 分">${esc(s.name)}</div>`).join('') +
+      (diff > 0.001 ? `<div class="gap" style="flex:${diff / scale}">未分配</div>` : '');
+    const t = this.k.alloctext;
+    t.className = 'alloc-text ' + (Math.abs(diff) < 0.001 ? 'ok' : diff > 0 ? 'under' : 'over');
+    t.textContent = `已分配 ${fmtMin(sum)} / ${fmtMin(tot)} 分鐘` + (Math.abs(diff) < 0.001 ? '　✓ 剛好' : diff > 0 ? `　尚有 ${fmtMin(diff)} 分鐘未分配` : `　超出 ${fmtMin(-diff)} 分鐘`);
+    $$('[data-act="tot"]', this.el).forEach(b => b.classList.toggle('on', +b.dataset.v === c.total));
+  },
+  renderPresets(sel) {
+    const names = Object.keys(this.presets);
+    this.k.preset.innerHTML = names.length ? names.map(n => `<option ${n === sel ? 'selected' : ''}>${esc(n)}</option>`).join('') : '<option value="">（尚未儲存方案）</option>';
+  },
+  buildTimeline() {
+    const r = this.run;
+    this.k.timeline.innerHTML = r.steps.map((s, i) => `<div class="${i < r.idx ? 'done' : i === r.idx ? 'cur' : ''}" style="flex:${s.dur};background:${COLORS[s.c % COLORS.length]}" title="${esc(s.name)}">${esc(s.name)}</div>`).join('') + '<div class="now" data-now></div>';
+    this.k.now = $('[data-now]', this.k.timeline);
+    this.k.hero.style.setProperty('--c', COLORS[r.steps[r.idx].c % COLORS.length]);
+  },
+  renderRun() {
+    if (!this.run) return;
+    const r = this.run, k = this.k, st = r.steps[r.idx], ms = this.clock.ms, rem = st.dur - ms, n = r.steps.length, last = r.idx === n - 1;
+    const el = this.elapsed();
+    T(k.idx, `步驟 ${r.idx + 1} / ${n}` + (!this.clock.on ? '　·　已暫停' : '') + (rem <= 0 ? '　·　超時' : ''));
+    T(k.name, st.name); T(k.big, down(rem)); k.hero.classList.toggle('over', rem <= 0);
+    k.bar.style.width = Math.min(100, ms / st.dur * 100) + '%';
+    T(k.next, last ? '這是最後一個步驟' : `下一步：${r.steps[r.idx + 1].name}（${up(r.steps[r.idx + 1].dur)}）`);
+    T(k.el, up(el)); T(k.left, down(r.plan - el));
+    const restPlan = r.steps.slice(r.idx + 1).reduce((a, s) => a + s.dur, 0), proj = el + Math.max(0, rem) + restPlan - r.plan;
+    k.schedbox.className = 'stat ' + (proj > 5000 ? 'bad' : proj < -5000 ? 'good' : '');
+    T(k.sched, proj > 5000 ? `預計超時 ${up(proj)}` : proj < -5000 ? `預計提早 ${up(-proj)}` : '照表進行 ✓');
+    if (k.now) k.now.style.left = Math.min(100, el / r.plan * 100) + '%';
+    T(k.pause, this.clock.on ? '暫停' : '繼續'); k.prev.disabled = r.idx === 0; T(k.nextbtn, last ? '結束 ■' : '下一步 ▶');
+  },
+  resultRows() {
+    const r = this.run;
+    return r.steps.map((s, i) => { const reached = i <= r.idx; return { s, plan: s.dur, act: reached ? r.actual[i] : null }; });
+  },
+  renderResult() {
+    const r = this.run, rows = this.resultRows(), tot = r.actual.reduce((a, b) => a + b, 0), d = tot - r.plan;
+    T(this.k.rtotal, up(tot));
+    T(this.k.rsub, `預計 ${up(r.plan)}，` + (Math.abs(d) < 5000 ? '幾乎剛好 👍' : d > 0 ? `超時 ${up(d)}` : `提早 ${up(-d)} 結束`));
+    const dc = x => { if (x == null) return '—'; const dd = x.act - x.plan; if (Math.abs(dd) < 5000) return '±0'; return `<span class="${dd > 0 ? 'd-over' : 'd-under'}">${dd > 0 ? '+' : '−'}${up(Math.abs(dd))}</span>`; };
+    this.k.rtable.innerHTML = rows.map(x => `<tr><td><span class="sdot" style="background:${COLORS[x.s.c % COLORS.length]}"></span>${esc(x.s.name)}</td><td class="num">${up(x.plan)}</td><td class="num">${x.act == null ? '未進行' : up(x.act)}</td><td class="num">${dc(x)}</td></tr>`).join('') +
+      `<tr><td><b>合計</b></td><td class="num"><b>${up(r.plan)}</b></td><td class="num"><b>${up(tot)}</b></td><td class="num">${dc({ act: tot, plan: r.plan })}</td></tr>`;
+  },
+  copyResult() {
+    const r = this.run, rows = this.resultRows(), tot = r.actual.reduce((a, b) => a + b, 0);
+    const lines = [`試教計時結果 ${new Date().toLocaleString('zh-TW', { hour12: false })}`, `預計 ${up(r.plan)}　實際 ${up(tot)}`, '',
+      ...rows.map(x => `${x.s.name}：預計 ${up(x.plan)}　實際 ${x.act == null ? '未進行' : up(x.act)}`)];
+    copyText(lines.join('\n'));
+  }
+};
+
+/* ================= 4. 間歇訓練 HIIT ================= */
+const hiit = {
+  id: 'interval', name: '間歇訓練 HIIT', icon: '🔥', cat: '運動健身', desc: 'Tabata 等「運動／休息」交替循環，切換前 3 秒嗶聲倒數',
+  html: `
+  <div class="card hero" data-k="hero" data-phase="prep">
+    <div class="phase" data-k="phase">準備</div>
+    <div class="big mono" data-k="big">00:10</div>
+    <div class="sub" data-k="sub"></div>
+    <div class="bar"><i data-k="bar"></i></div>
+    <div class="sub" data-k="next"></div>
+  </div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="skip">跳過 ⏭</button></div>
+  <div class="card cfg">
+    <div class="lbl-line">快速套用</div>
+    <div class="chips" style="margin-bottom:12px">
+      <button class="chip" data-act="pre" data-v="10,20,10,8,0">Tabata 20/10 ×8</button>
+      <button class="chip" data-act="pre" data-v="10,30,30,10,0">30/30 ×10</button>
+      <button class="chip" data-act="pre" data-v="10,40,20,8,0">40/20 ×8</button>
+      <button class="chip" data-act="pre" data-v="10,45,15,6,60">45/15 ×6＋緩和</button>
+      <button class="chip" data-act="pre" data-v="5,60,0,10,0">EMOM 1 分 ×10</button>
+    </div>
+    <fieldset data-k="fs"><div class="field-row" style="margin-bottom:0">
+      <label class="field">準備（秒）<input type="number" min="0" data-c="prep"></label>
+      <label class="field">運動（秒）<input type="number" min="1" data-c="work"></label>
+      <label class="field">休息（秒）<input type="number" min="0" data-c="rest"></label>
+      <label class="field">回合數<input type="number" min="1" data-c="rounds"></label>
+      <label class="field">緩和（秒）<input type="number" min="0" data-c="cool"></label>
+    </div></fieldset>
+    <p class="hint" data-k="info"></p>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.cfg = Object.assign({ prep: 10, work: 20, rest: 10, rounds: 8, cool: 0 }, store.get('hiitCfg', {}));
+    this.clock = new Clock(); this.done = false;
+    $$('[data-c]', el).forEach(inp => inp.addEventListener('change', () => { const c = inp.dataset.c; this.cfg[c] = Math.max(+inp.min, Math.round(num(inp.value, this.cfg[c]))); this.apply(); }));
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.apply();
+  },
+  apply() {
+    store.set('hiitCfg', this.cfg); $$('[data-c]', this.el).forEach(inp => inp.value = this.cfg[inp.dataset.c]);
+    const c = this.cfg, seq = [];
+    if (c.prep > 0) seq.push({ t: 'prep', d: c.prep });
+    for (let i = 1; i <= c.rounds; i++) { seq.push({ t: 'work', d: c.work, r: i }); if (i < c.rounds && c.rest > 0) seq.push({ t: 'rest', d: c.rest, r: i }); }
+    if (c.cool > 0) seq.push({ t: 'cool', d: c.cool });
+    let acc = 0; seq.forEach(p => { p.s = acc; acc += p.d * 1000; p.e = acc; });
+    this.seq = seq; this.totalMs = acc; this.reset();
+    T(this.k.info, `總長 ${up(acc)}，共 ${c.rounds} 回合`);
+  },
+  reset() { this.clock.reset(); this.done = false; this.lastIdx = -1; this.lastSec = null; this.render(); },
+  idxAt(ms) { return this.seq.findIndex(p => ms < p.e); },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') { if (this.done) this.reset(); this.clock.toggle(); }
+    else if (a === 'reset') this.reset();
+    else if (a === 'skip') { const i = this.idxAt(this.clock.ms); if (i >= 0) this.clock.set(this.seq[i].e); this.logic(); }
+    else if (a === 'pre') { const [prep, work, rest, rounds, cool] = b.dataset.v.split(',').map(Number); Object.assign(this.cfg, { prep, work, rest, rounds, cool }); this.apply(); }
+    this.render();
+  },
+  logic() {
+    if (this.done || this.clock.ms === 0) return;
+    const ms = this.clock.ms, i = this.idxAt(ms);
+    if (i === -1) { this.clock.pause(); this.clock.set(this.totalMs); this.done = true; alarm('間歇訓練完成！辛苦了', { bell: 3 }); this.render(); return; }
+    if (i !== this.lastIdx) {
+      const t = this.seq[i].t;
+      if (t === 'work') Sound.beep(2, 1046, 0.12); else if (t === 'rest') Sound.beep(1, 523, 0.35); else Sound.beep(1, 784, 0.2);
+      if (t === 'work' || t === 'rest') vib(150);
+      this.lastIdx = i; this.lastSec = null;
+    }
+    if (!this.clock.on) return;
+    const sec = Math.ceil((this.seq[i].e - ms) / 1000);
+    if (sec <= 3 && sec >= 1 && sec !== this.lastSec) { this.lastSec = sec; Sound.beep(1, 660, 0.08); }
+  },
+  title() { if (this.done || this.clock.ms === 0) return null; const i = this.idxAt(this.clock.ms); return i < 0 ? null : down(this.seq[i].e - this.clock.ms); },
+  render() {
+    const k = this.k, ms = this.clock.ms, names = { prep: '準備', work: '運動！', rest: '休息', cool: '緩和' };
+    k.fs.disabled = ms > 0 && !this.done;
+    T(k.toggle, this.done ? '再來一次' : this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始');
+    if (this.done) { k.hero.dataset.phase = 'done'; T(k.phase, '完成 🎉'); T(k.big, up(this.totalMs)); T(k.sub, `${this.cfg.rounds} 回合全部完成`); T(k.next, ''); k.bar.style.width = '100%'; return; }
+    const i = Math.max(0, this.idxAt(ms)), p = this.seq[i]; if (!p) return;
+    k.hero.dataset.phase = p.t; T(k.phase, names[p.t] + (ms > 0 && !this.clock.on ? '（暫停）' : ''));
+    T(k.big, down(p.e - ms)); k.bar.style.width = ((ms - p.s) / (p.d * 1000) * 100) + '%';
+    T(k.sub, (p.r ? `第 ${p.r} / ${this.cfg.rounds} 回合　·　` : '') + `總剩餘 ${down(this.totalMs - ms)}`);
+    const nx = this.seq[i + 1]; T(k.next, nx ? `接下來：${names[nx.t].replace('！', '')} ${nx.d} 秒` : '最後一段');
+  }
+};
+
+/* ================= 5. 倒數計時 ================= */
+const cd = {
+  id: 'countdown', name: '倒數計時', icon: '⏳', cat: '教學課堂', desc: '課堂活動、小組討論、上台準備等通用倒數，時間到響鈴並顯示超時',
+  html: `
+  <div class="card hero" data-k="hero">
+    <div class="phase" data-k="label">倒數計時</div>
+    <div class="ringwrap">${ringSVG('cdRing')}<div class="inner"><div class="big mono" data-k="big">05:00</div><div class="sub" data-k="sub"></div></div></div>
+  </div>
+  <div class="row"><button class="btn" data-act="sub">−1 分</button><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="add">+1 分</button></div>
+  <div class="card cfg">
+    <div class="chips" style="margin-bottom:12px">${[1, 2, 3, 5, 10, 15, 20, 30].map(v => `<button class="chip" data-act="pre" data-v="${v}">${v} 分</button>`).join('')}</div>
+    <div class="field-row" style="margin-bottom:0">
+      <label class="field">時<input type="number" min="0" data-t="h"></label>
+      <label class="field">分<input type="number" min="0" max="59" data-t="m"></label>
+      <label class="field">秒<input type="number" min="0" max="59" data-t="s"></label>
+      <label class="field grow">活動名稱（會顯示在上方）<input data-k="name" placeholder="例：小組討論"></label>
+    </div>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.dur = store.get('cdDur', 300000); this.clock = new Clock(); this.ended = false; this.ring = $('#cdRing', el);
+    this.k.name.value = store.get('cdName', '');
+    this.k.name.addEventListener('input', () => { store.set('cdName', this.k.name.value); this.render(); });
+    $$('[data-t]', el).forEach(inp => inp.addEventListener('change', () => {
+      const v = t => Math.max(0, Math.round(num($(`[data-t="${t}"]`, el).value)));
+      const d = (v('h') * 3600 + v('m') * 60 + v('s')) * 1000; if (d > 0) { this.dur = d; store.set('cdDur', d); this.clock.reset(); this.ended = false; } this.fillInputs(); this.render();
+    }));
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+    this.fillInputs();
+  },
+  fillInputs() { const s = Math.round(this.dur / 1000); $('[data-t="h"]', this.el).value = Math.floor(s / 3600); $('[data-t="m"]', this.el).value = Math.floor(s % 3600 / 60); $('[data-t="s"]', this.el).value = s % 60; },
+  rem() { return this.dur - this.clock.ms; },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') { if (this.ended) { this.clock.reset(); this.ended = false; this.clock.play(); } else this.clock.toggle(); if (this.clock.on) Sound.beep(1, 880); }
+    else if (a === 'reset') { this.clock.reset(); this.ended = false; }
+    else if (a === 'add') { this.dur += 60000; if (this.rem() > 0) this.ended = false; }
+    else if (a === 'sub') { this.dur = Math.max(1000, this.dur - 60000); }
+    else if (a === 'pre') { this.dur = +b.dataset.v * 60000; this.clock.reset(); this.ended = false; }
+    if (a !== 'toggle' && a !== 'reset') { store.set('cdDur', this.dur); this.fillInputs(); }
+    this.render();
+  },
+  logic() { if (this.clock.on && this.rem() <= 0 && !this.ended) { this.ended = true; alarm(`${this.k.name.value.trim() || '倒數'}時間到！`, { bell: 3 }); } },
+  title() { return this.clock.ms > 0 ? down(this.rem()) : null; },
+  render() {
+    const k = this.k, r = this.rem();
+    T(k.label, this.k.name.value.trim() || '倒數計時'); T(k.big, down(r)); k.hero.classList.toggle('over', this.ended);
+    setRing(this.ring, this.clock.ms / this.dur);
+    T(k.sub, this.ended ? '時間到！' : this.clock.ms > 0 && !this.clock.on ? '已暫停' : `共 ${up(this.dur)}`);
+    T(k.toggle, this.ended ? '重新開始' : this.clock.on ? '暫停' : this.clock.ms > 0 ? '繼續' : '開始');
+    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v * 60000 === this.dur));
+  }
+};
+
+/* ================= 6. 碼錶 ================= */
+const sw = {
+  id: 'stopwatch', name: '碼錶', icon: '⏱️', cat: '通用工具', desc: '精確到 0.01 秒的正向計時，支援分圈並標出最快／最慢圈',
+  html: `
+  <div class="card hero"><div class="phase" data-k="phase">碼錶</div><div class="big mono" data-k="big">00:00.00</div></div>
+  <div class="row"><button class="btn xl" data-act="lap" data-k="lap" style="min-width:140px">分圈</button><button class="btn primary xl" data-act="toggle" data-k="toggle" style="min-width:140px">開始</button></div>
+  <div class="card" data-k="lapcard" hidden>
+    <div class="card-head"><h3>分圈紀錄</h3><button class="btn sm" data-act="copy">複製</button></div>
+    <table class="log"><thead><tr><th>圈</th><th class="num">單圈</th><th class="num">累計</th></tr></thead><tbody data-k="laps"></tbody></table>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.clock = new Clock(); this.laps = [];
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b && !b.disabled) this.act(b.dataset.act); });
+  },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a) {
+    if (a === 'toggle') this.clock.toggle();
+    else if (a === 'lap') { if (this.clock.on) this.laps.push(this.clock.ms); else { this.clock.reset(); this.laps = []; } this.renderLaps(); }
+    else if (a === 'copy') { copyText(this.laps.map((t, i) => `第${i + 1}圈　${cs(t - (this.laps[i - 1] || 0))}　累計 ${cs(t)}`).join('\n')); }
+    this.render();
+  },
+  renderLaps() {
+    const L = this.laps, k = this.k; k.lapcard.hidden = !L.length; if (!L.length) { k.laps.innerHTML = ''; return; }
+    const splits = L.map((t, i) => t - (L[i - 1] || 0)), mx = Math.max(...splits), mn = Math.min(...splits);
+    k.laps.innerHTML = `<tr class="cur"><td>${L.length + 1}</td><td class="num" data-cur>—</td><td class="num">進行中</td></tr>` +
+      splits.map((s, i) => `<tr class="${L.length >= 3 && s === mn ? 'best' : L.length >= 3 && s === mx ? 'worst' : ''}"><td>${i + 1}</td><td class="num">${cs(s)}</td><td class="num">${cs(L[i])}</td></tr>`).reverse().join('');
+    this.curCell = $('[data-cur]', k.laps);
+  },
+  logic() {},
+  title() { return this.clock.ms > 0 ? up(this.clock.ms) : null; },
+  render() {
+    const k = this.k, ms = this.clock.ms;
+    T(k.big, cs(ms)); T(k.phase, this.clock.on ? '計時中' : ms > 0 ? '已暫停' : '碼錶');
+    T(k.toggle, this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始');
+    T(k.lap, this.clock.on || ms === 0 ? '分圈' : '重設'); k.lap.disabled = ms === 0;
+    if (this.curCell && this.laps.length) T(this.curCell, cs(ms - this.laps[this.laps.length - 1]));
+  }
+};
+
+/* ================= 7. 考試時鐘 ================= */
+const hm = d => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const exam = {
+  id: 'exam', name: '考試時鐘', icon: '📝', cat: '教學課堂', desc: '投影用大時鐘：顯示科目、考試起訖、剩餘時間，結束前自動響鈴提醒',
+  html: `
+  <div class="card exam-hero">
+    <div class="exam-date" data-k="date"></div>
+    <div class="exam-clock mono" data-k="clock">00:00:00</div>
+    <p class="exam-subject" data-k="subj">考試</p>
+    <div class="exam-range mono" data-k="range"></div>
+    <div class="exam-status" data-k="status"><span class="l" data-k="sl"></span><span class="v mono" data-k="sv"></span></div>
+    <div class="bar" style="--c:var(--accent)"><i data-k="bar"></i></div>
+    <div class="exam-notes" data-k="notes"></div>
+  </div>
+  <details class="card cfg" open>
+    <summary>考試設定</summary>
+    <div class="field-row">
+      <label class="field grow">科目／場次<input data-c="subject" placeholder="例：數理及資訊學科能力競賽－數學"></label>
+      <label class="field">開始時間<input type="time" data-c="start"></label>
+      <label class="field">結束時間<input type="time" data-c="end"></label>
+    </div>
+    <div class="lbl-line">從現在開始考：</div>
+    <div class="chips" style="margin-bottom:12px">${[30, 40, 45, 50, 60, 90, 100, 120].map(v => `<button class="chip" data-act="now" data-v="${v}">${v} 分鐘</button>`).join('')}</div>
+    <div class="field-row">
+      <label class="field">第一次提醒（剩幾分）<input type="number" min="0" data-c="warn1"></label>
+      <label class="field">第二次提醒（剩幾分）<input type="number" min="0" data-c="warn2"></label>
+    </div>
+    <label class="field">注意事項（顯示在時鐘下方，可多行）<textarea rows="3" data-c="notes" placeholder="例：請關閉手機並放入書包&#10;作答完畢請檢查姓名、准考證號碼"></textarea></label>
+    <p class="hint">開始、結束前提醒與結束時都會響鈴。設定好後按右上角 ⛶ 全螢幕投影，設定區會自動隱藏。</p>
+  </details>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    const now = new Date(), s = new Date(Math.ceil(now.getTime() / 300000) * 300000);
+    this.cfg = Object.assign({ subject: '', start: hm(s), end: hm(new Date(s.getTime() + 50 * 60000)), warn1: 15, warn2: 5, notes: '' }, store.get('examCfg', {}));
+    this.fired = {};
+    $$('[data-c]', el).forEach(inp => {
+      inp.value = this.cfg[inp.dataset.c];
+      inp.addEventListener('input', () => { const c = inp.dataset.c; this.cfg[c] = inp.type === 'number' ? Math.max(0, num(inp.value)) : inp.value; store.set('examCfg', this.cfg); this.fired = {}; this.render(); });
+    });
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+  },
+  act(a, b) {
+    if (a === 'now') { const n = new Date(); n.setSeconds(0, 0); this.cfg.start = hm(n); this.cfg.end = hm(new Date(n.getTime() + b.dataset.v * 60000)); store.set('examCfg', this.cfg); this.fired = {};
+      $('[data-c="start"]', this.el).value = this.cfg.start; $('[data-c="end"]', this.el).value = this.cfg.end; this.render(); }
+  },
+  times() {
+    const now = new Date(), mk = v => { const [h, m] = String(v || '0:0').split(':').map(Number); const d = new Date(now); d.setHours(h || 0, m || 0, 0, 0); return d.getTime(); };
+    const s = mk(this.cfg.start); let e = mk(this.cfg.end); if (e <= s) e += 86400000; return { s, e };
+  },
+  running() { return current === 'exam'; },
+  logic() {
+    if (current !== 'exam') return;
+    const { s, e } = this.times(), now = Date.now(), rem = e - now, f = this.fired, win = 60000;
+    const once = (key, cond, fn) => { if (cond && !f[key]) { f[key] = true; fn(); } };
+    once('start' + s, now >= s && now < s + win && now < e, () => alarm('考試開始', { bell: 1 }));
+    for (const [w, n] of [[this.cfg.warn1, 1], [this.cfg.warn2, 2]]) { const W = w * 60000; if (W > 0) once(`w${W}-${s}`, now >= s && rem <= W && rem > W - win, () => alarm(`距離考試結束還有 ${Math.ceil(rem / 60000)} 分鐘`, { bell: n })); }
+    once('end' + s, now >= e && now < e + win, () => alarm('考試時間到，請停止作答', { bell: 3 }));
+  },
+  title() { return null; },
+  render() {
+    const k = this.k, now = new Date(), { s, e } = this.times(), t = now.getTime();
+    T(k.date, now.toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' }));
+    T(k.clock, `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`);
+    T(k.subj, this.cfg.subject.trim() || '考試'); T(k.range, `考試時間 ${this.cfg.start} – ${this.cfg.end}`);
+    let l, v, cls = '', p = 0;
+    if (t < s) { l = '距離開始'; v = down(s - t); }
+    else if (t < e) { const rem = e - t; l = '剩餘時間'; v = down(rem); p = (t - s) / (e - s) * 100;
+      cls = this.cfg.warn2 > 0 && rem <= this.cfg.warn2 * 60000 ? 'bad' : this.cfg.warn1 > 0 && rem <= this.cfg.warn1 * 60000 ? 'warn' : ''; }
+    else { l = '考試已結束'; v = '停止作答'; p = 100; cls = 'bad'; }
+    T(k.sl, l); T(k.sv, v); k.status.className = 'exam-status ' + cls; k.bar.style.width = p + '%'; T(k.notes, this.cfg.notes);
+  }
+};
+
+/* ================= 8. 發表計時 ================= */
+const speech = {
+  id: 'speech', name: '發表計時', icon: '🎤', cat: '教學課堂', desc: '專題、科展、口頭報告用：綠→黃→紅燈號，時間快到與時間到自動按鈴',
+  html: `
+  <div class="card hero speech-hero" data-k="hero" data-light="idle">
+    <div class="phase" data-k="phase">準備</div>
+    <div class="big mono" data-k="big">00:00</div>
+    <div class="sub" data-k="sub"></div>
+    <div class="lights"><i class="g" data-k="lg"></i><i class="y" data-k="ly"></i><i class="r" data-k="lr"></i></div>
+  </div>
+  <div class="row"><button class="btn" data-act="reset">重設</button><button class="btn primary xl" data-act="toggle" data-k="toggle">開始</button><button class="btn" data-act="mode" data-k="mode">改顯示剩餘</button></div>
+  <div class="card cfg">
+    <div class="chips" style="margin-bottom:12px">${[3, 5, 7, 8, 10, 12, 15].map(v => `<button class="chip" data-act="pre" data-v="${v}">${v} 分鐘</button>`).join('')}</div>
+    <div class="field-row" style="margin-bottom:0">
+      <label class="field">發表時限（分）<input type="number" min="1" step="0.5" data-c="min"></label>
+      <label class="field">剩幾分鐘亮黃燈＋一聲鈴<input type="number" min="0" step="0.5" data-c="warn"></label>
+    </div>
+    <label class="check"><input type="checkbox" data-c="rep"> 超時後每 30 秒再提醒（三聲鈴）</label>
+    <p class="hint">時間快到：一聲鈴；時間到：兩聲鈴（比照一般發表會習慣）。</p>
+  </div>`,
+  init(el) {
+    this.el = el; this.k = {}; $$('[data-k]', el).forEach(n => this.k[n.dataset.k] = n);
+    this.cfg = Object.assign({ min: 5, warn: 1, rep: false, mode: 'up' }, store.get('speechCfg', {}));
+    this.clock = new Clock(); this.f = {};
+    $$('[data-c]', el).forEach(inp => {
+      if (inp.type === 'checkbox') inp.checked = this.cfg[inp.dataset.c]; else inp.value = this.cfg[inp.dataset.c];
+      inp.addEventListener('change', () => { const c = inp.dataset.c; this.cfg[c] = inp.type === 'checkbox' ? inp.checked : Math.max(c === 'min' ? 0.5 : 0, num(inp.value, this.cfg[c])); this.saveCfg(); });
+    });
+    el.addEventListener('click', e => { const b = e.target.closest('[data-act]'); if (b) this.act(b.dataset.act, b); });
+  },
+  saveCfg() { store.set('speechCfg', this.cfg); $$('[data-c]', this.el).forEach(inp => { if (inp.type !== 'checkbox') inp.value = this.cfg[inp.dataset.c]; }); this.render(); },
+  running() { return this.clock.on; },
+  toggle() { this.act('toggle'); },
+  act(a, b) {
+    if (a === 'toggle') this.clock.toggle();
+    else if (a === 'reset') { this.clock.reset(); this.f = {}; }
+    else if (a === 'mode') { this.cfg.mode = this.cfg.mode === 'up' ? 'down' : 'up'; }
+    else if (a === 'pre') { this.cfg.min = +b.dataset.v; this.clock.reset(); this.f = {}; }
+    this.saveCfg();
+  },
+  logic() {
+    if (!this.clock.on) return;
+    const ms = this.clock.ms, Tm = this.cfg.min * 60000, W = Tm - this.cfg.warn * 60000, f = this.f;
+    if (this.cfg.warn > 0 && ms >= W && ms < Tm && !f.w) { f.w = true; Sound.bell(1); toast(`剩 ${fmtMin(this.cfg.warn)} 分鐘`); }
+    if (ms >= Tm && !f.e) { f.e = true; f.w = true; Sound.bell(2); toast('時間到！', 3500); flash(); }
+    if (this.cfg.rep && ms >= Tm + 30000) { const n = Math.floor((ms - Tm) / 30000); if (n !== f.k) { f.k = n; Sound.bell(3); } }
+  },
+  title() { return this.clock.ms > 0 ? up(this.clock.ms) : null; },
+  render() {
+    const k = this.k, ms = this.clock.ms, Tm = this.cfg.min * 60000, W = Tm - this.cfg.warn * 60000;
+    const light = ms === 0 && !this.clock.on ? 'idle' : ms >= Tm ? 'red' : this.cfg.warn > 0 && ms >= W ? 'yellow' : 'green';
+    k.hero.dataset.light = light;
+    T(k.phase, { idle: '準備', green: '發表中', yellow: '時間快到了', red: '時間到' }[light] + (ms > 0 && !this.clock.on ? '（暫停）' : ''));
+    T(k.big, this.cfg.mode === 'up' ? up(ms) : down(Tm - ms));
+    T(k.sub, `時限 ${fmtMin(this.cfg.min)} 分鐘` + (this.cfg.warn > 0 ? `　·　剩 ${fmtMin(this.cfg.warn)} 分鐘黃燈` : '') + (ms > Tm ? `　·　已超時 ${up(ms - Tm)}` : ''));
+    k.lg.classList.toggle('on', light === 'green'); k.ly.classList.toggle('on', light === 'yellow'); k.lr.classList.toggle('on', light === 'red');
+    T(k.toggle, this.clock.on ? '暫停' : ms > 0 ? '繼續' : '開始'); T(k.mode, this.cfg.mode === 'up' ? '改顯示剩餘' : '改顯示已用');
+    $$('[data-act="pre"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.cfg.min));
+  }
+};
+
+/* ================= 首頁、路由與主迴圈 ================= */
+const MODULES = [gym, hiit, pomo, teach, cd, speech, exam, sw];
+const CATS = ['運動健身', '專注學習', '教學課堂', '通用工具'];
+let current = 'home';
+
+function buildHome() {
+  const home = $('#v-home');
+  home.innerHTML = `<div class="intro"><h2>計時器工具箱</h2><p>選一個計時器開始。各計時器可同時在背景運作，卡片右上角會顯示正在進行的時間。</p></div>` +
+    CATS.map(c => { const ms = MODULES.filter(m => m.cat === c); return ms.length ? `<div class="cat">${c}</div><div class="grid">${ms.map(m =>
+      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>` : ''; }).join('') +
+    `<div class="foot">💡 網址後面加上 ${MODULES.map(m => `<code>#${m.id}</code>`).join(' ')} 可直接開啟指定計時器，嵌入 Google 協作平台時可為每個頁面放不同計時器。<br>
+     ⌨️ 快捷鍵：空白鍵 開始／暫停、F 全螢幕。設定與紀錄只存在這台裝置的瀏覽器中。</div>`;
+}
+function setup() {
+  buildHome();
+  const app = $('#app');
+  MODULES.forEach(m => { const sec = document.createElement('section'); sec.className = 'view'; sec.id = 'v-' + m.id; sec.hidden = true; sec.innerHTML = m.html; app.appendChild(sec); m.init(sec); });
+  window.addEventListener('hashchange', route); route();
+  // 頂端按鈕
+  const sb = $('#soundBtn'), paintSound = () => { sb.textContent = Sound.on ? '🔔' : '🔕'; sb.title = Sound.on ? '音效：開' : '音效：關'; };
+  paintSound(); sb.onclick = () => { Sound.on = !Sound.on; store.set('sound', Sound.on); paintSound(); if (Sound.on) Sound.beep(1); toast(Sound.on ? '音效已開啟' : '音效已關閉'); };
+  const themes = ['auto', 'light', 'dark'], applyTheme = t => { if (t === 'auto') document.documentElement.removeAttribute('data-theme'); else document.documentElement.dataset.theme = t; };
+  let theme = store.get('theme', 'auto'); applyTheme(theme);
+  $('#themeBtn').onclick = () => { theme = themes[(themes.indexOf(theme) + 1) % 3]; applyTheme(theme); store.set('theme', theme); toast({ auto: '外觀：跟隨系統', light: '外觀：淺色', dark: '外觀：深色' }[theme]); };
+  $('#fsBtn').onclick = toggleFs;
+  document.addEventListener('fullscreenchange', () => document.documentElement.classList.toggle('fs', !!document.fullscreenElement));
+  document.addEventListener('webkitfullscreenchange', () => document.documentElement.classList.toggle('fs', !!document.webkitFullscreenElement));
+  let inFrame = false; try { inFrame = window.self !== window.top; } catch (e) { inFrame = true; }
+  if (inFrame) $('#newTabBtn').hidden = false;
+  document.addEventListener('keydown', e => {
+    if (e.target.closest('input,textarea,select,[contenteditable]') || e.ctrlKey || e.metaKey || e.altKey || $('.modal')) return;
+    const m = MODULES.find(x => x.id === current); if (!m) return;
+    if (e.code === 'Space') { e.preventDefault(); m.toggle && m.toggle(); }
+    else if (e.key === 'f' || e.key === 'F') toggleFs();
+    else if (m.key && m.key(e)) e.preventDefault();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') Wake.lock = null; });
+  const frame = () => { loop(); requestAnimationFrame(frame); };
+  requestAnimationFrame(frame); setInterval(loop, 500); // 分頁在背景時 rAF 會停，用 interval 保證提醒照常觸發
+}
+function toggleFs() {
+  const d = document, el = d.documentElement;
+  if (d.fullscreenElement || d.webkitFullscreenElement) { (d.exitFullscreen || d.webkitExitFullscreen).call(d); return; }
+  const req = el.requestFullscreen || el.webkitRequestFullscreen;
+  if (!req) { toast('此瀏覽器不支援全螢幕'); return; }
+  try { const p = req.call(el); if (p && p.catch) p.catch(() => toast('嵌入頁面無法全螢幕，請按 ↗ 在新分頁開啟')); } catch (e) { toast('嵌入頁面無法全螢幕，請按 ↗ 在新分頁開啟'); }
+}
+function route() {
+  const id = location.hash.slice(1), m = MODULES.find(x => x.id === id);
+  current = m ? m.id : 'home';
+  $$('.view').forEach(v => v.hidden = v.id !== 'v-' + current);
+  $('#backBtn').hidden = current === 'home';
+  $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : '計時器工具箱';
+  $('#newTabBtn').href = location.href;
+  if (m) m.render();
+  window.scrollTo(0, 0);
+}
+let lastTitle = '';
+function loop() {
+  for (const m of MODULES) { try { m.logic(); } catch (e) { console.error(m.id, e); } }
+  const m = MODULES.find(x => x.id === current);
+  if (m) { try { m.render(); } catch (e) { console.error(m.id, e); } }
+  else MODULES.forEach(x => { const el = $(`[data-live="${x.id}"]`); if (el) T(el, x.running() ? (x.title() || '進行中') : ''); });
+  const t = m && m.title() ? `${m.title()} · ${m.name}` : (m ? m.name + ' · 計時器工具箱' : '計時器工具箱');
+  if (t !== lastTitle) { document.title = t; lastTitle = t; }
+  Wake.want(MODULES.some(x => x.running()));
+}
+setup();
+</script>
+</body>
+</html>
