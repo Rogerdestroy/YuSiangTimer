@@ -36,13 +36,19 @@ main{max-width:900px;margin:0 auto;padding:16px 16px 56px}
 .intro p{margin:0;color:var(--muted)}
 .cat{margin:22px 2px 10px;font-size:14px;color:var(--muted);font-weight:700;letter-spacing:.06em}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
-.tcard{position:relative;display:flex;gap:12px;align-items:center;padding:14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:transform .12s,border-color .12s}
+.tcard{position:relative;display:flex;gap:12px;align-items:center;padding:14px 40px 14px 14px;border-radius:16px;background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);text-decoration:none;color:inherit;transition:transform .12s,border-color .12s}
 .tcard:hover{transform:translateY(-2px);border-color:var(--accent)}
 .tcard .ic{font-size:28px;width:48px;height:48px;display:grid;place-items:center;background:var(--surface2);border-radius:12px;flex:none}
 .tcard h3{margin:0;font-size:16.5px}
 .tcard p{margin:2px 0 0;font-size:13px;color:var(--muted);line-height:1.4}
 .live{position:absolute;top:8px;right:8px;font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink)}
 .live:empty{display:none}
+.pin{position:absolute;right:6px;bottom:6px;width:32px;height:32px;border:0;border-radius:8px;background:transparent;cursor:pointer;font-size:16px;opacity:.28;filter:grayscale(1);transition:opacity .15s}
+.pin:hover{opacity:.8;background:var(--surface2)}
+.pin.on{opacity:1;filter:none}
+.tcard.pinned{border-color:color-mix(in srgb,var(--accent) 45%,var(--line))}
+#pinBtn.on{background:var(--surface2)}
+#pinBtn:not(.on){filter:grayscale(1);opacity:.5}
 .foot{margin-top:26px;font-size:13px;color:var(--muted);line-height:1.7}
 code{background:var(--surface2);padding:1px 6px;border-radius:6px;font-size:14px;white-space:nowrap}
 #pauseAllBtn{flex:none;white-space:nowrap}
@@ -209,7 +215,7 @@ table.log .num{text-align:right;font-variant-numeric:tabular-nums}
 .scell.bad{animation:bad .35s}
 @keyframes bad{0%,60%{background:var(--danger);color:#fff}}
 .bomb-hero{--heat:0;transition:background .3s}
-.bomb-hero.live{background:color-mix(in srgb,#c62f38 calc(var(--heat)*100%),var(--surface));animation:glow 1s ease-in-out infinite}
+.bomb-hero.lit{background:color-mix(in srgb,#c62f38 calc(var(--heat)*100%),var(--surface));animation:glow 1s ease-in-out infinite}
 @keyframes glow{50%{box-shadow:0 0 0 10px rgba(198,47,56,.18),0 0 40px rgba(198,47,56,.35)}}
 .bomb{--sc:1;font-size:clamp(100px,28vw,180px);line-height:1.15;display:inline-block;transform:scale(var(--sc))}
 .bomb.tick{animation:tick .18s}
@@ -219,7 +225,7 @@ table.log .num{text-align:right;font-variant-numeric:tabular-nums}
 .fuse b{position:absolute;top:50%;font-size:28px;transform:translate(-50%,-55%);animation:spark .15s infinite alternate;transition:left .3s linear}
 @keyframes spark{to{transform:translate(-50%,-55%) scale(1.35) rotate(25deg)}}
 .cd{font-size:clamp(22px,5vw,32px);font-weight:800}
-.bomb-hero.live .phase{color:#c62f38;animation:blink .8s steps(2) infinite}
+.bomb-hero.lit .phase{color:#c62f38;animation:blink .8s steps(2) infinite}
 @keyframes blink{50%{opacity:.35}}
 .hero.boom{background:#c62f38;border-color:transparent;color:#fff}
 .hero.boom .phase,.hero.boom .sub{color:#fff}
@@ -250,6 +256,7 @@ body.flash::after{content:"";position:fixed;inset:0;background:var(--accent);poi
   <h1 id="pageTitle">YSTimer 計時器</h1>
   <button class="btn sm" id="pauseAllBtn" title="暫停所有計時器" hidden>⏸ 全部暫停</button>
   <button class="iconbtn" id="soundBtn" title="音效開關">🔔</button>
+  <button class="iconbtn" id="pinBtn" title="置頂這個計時器" hidden>📌</button>
   <a class="iconbtn" id="setBtn" href="#settings" title="設定">⚙️</a>
   <a class="iconbtn" id="siteBtn" href="https://tool.yu-siang.com/" target="_top" title="回到 YuSiangTOOL 主頁">🏠</a>
   <button class="iconbtn" id="fsBtn" title="全螢幕（F）">⛶</button>
@@ -1228,7 +1235,7 @@ const bomb = {
   },
   render() {
     const k = this.k, s = this.st, ms = this.clock.ms, p = s === 'run' ? Math.min(1, ms / this.dur) : 0;
-    k.cfg.hidden = s === 'run'; k.hero.classList.toggle('boom', s === 'boom'); k.hero.classList.toggle('live', s === 'run');
+    k.cfg.hidden = s === 'run'; k.hero.classList.toggle('boom', s === 'boom'); k.hero.classList.toggle('lit', s === 'run');
     k.hero.style.setProperty('--heat', (s === 'run' ? 0.08 + p * 0.5 : 0).toFixed(3));
     k.bomb.style.setProperty('--sc', (1 + p * 0.25).toFixed(3));
     T(k.bomb, s === 'boom' ? '💥' : '💣'); T(k.go, s === 'run' ? (this.clock.on ? '停止' : '繼續') : s === 'boom' ? '再玩一次' : '開始');
@@ -1247,9 +1254,9 @@ const CATS = ['遊戲挑戰', '運動健身', '學習專注', '教學課堂', '�
 let current = 'home';
 const SITE = 'https://tool.yu-siang.com/';
 function setup() {
-  $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。計時器會在背景繼續跑，卡片右上角顯示進行中的時間。</p></div>` +
-    CATS.map(c => `<div class="cat">${c}</div><div class="grid">${MODULES.filter(m => m.cat === c).map(m =>
-      `<a class="tcard" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span></a>`).join('')}</div>`).join('');
+  renderHome();
+  $('#v-home').addEventListener('click', e => { const b = e.target.closest('[data-pin]'); if (!b) return; e.preventDefault(); e.stopPropagation(); togglePin(b.dataset.pin); });
+  $('#pinBtn').onclick = () => togglePin(current);
   buildSettings();
   MODULES.forEach(m => { const sec = document.createElement('section'); sec.className = 'view'; sec.id = 'v-' + m.id; sec.hidden = true; sec.innerHTML = m.html; $('#app').appendChild(sec); m.init(sec); });
   window.addEventListener('hashchange', route); route();
@@ -1269,6 +1276,25 @@ function setup() {
   });
   const frame = () => { loop(); requestAnimationFrame(frame); }; requestAnimationFrame(frame); setInterval(loop, 500);
 }
+let pins = store.get('pins', []);
+function card(m) {
+  const on = pins.includes(m.id);
+  return `<a class="tcard${on ? ' pinned' : ''}" href="#${m.id}"><span class="ic">${m.icon}</span><div><h3>${m.name}</h3><p>${m.desc}</p></div><span class="live mono" data-live="${m.id}"></span>` +
+    `<button class="pin${on ? ' on' : ''}" data-pin="${m.id}" title="${on ? '取消置頂' : '置頂'}" aria-label="${on ? '取消置頂' : '置頂'}">📌</button></a>`;
+}
+function renderHome() {
+  pins = pins.filter(id => MODULES.some(m => m.id === id));
+  const pinned = pins.map(id => MODULES.find(m => m.id === id));
+  $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。點卡片右下角的 📌 可以把常用的置頂。</p></div>` +
+    (pinned.length ? `<div class="cat">📌 置頂</div><div class="grid">${pinned.map(card).join('')}</div>` : '') +
+    CATS.map(c => { const ms = MODULES.filter(m => m.cat === c && !pins.includes(m.id)); return ms.length ? `<div class="cat">${c}</div><div class="grid">${ms.map(card).join('')}</div>` : ''; }).join('');
+}
+function togglePin(id) {
+  const m = MODULES.find(x => x.id === id); if (!m) return;
+  const on = pins.includes(id); pins = on ? pins.filter(x => x !== id) : [...pins, id]; store.set('pins', pins);
+  renderHome(); paintPin(); toast(on ? `已取消置頂：${m.name}` : `已置頂：${m.name}`);
+}
+function paintPin() { const b = $('#pinBtn'), m = MODULES.find(x => x.id === current); b.hidden = !m; if (m) { const on = pins.includes(m.id); b.classList.toggle('on', on); b.title = on ? '取消置頂' : '置頂這個計時器'; } }
 function paintSound() { $('#soundBtn').textContent = Sound.on ? '🔔' : '🔕'; const c = $('#setSound'); if (c) c.checked = Sound.on; }
 function setSound(on) { Sound.on = on; store.set('sound', on); paintSound(); toast(on ? '音效開啟' : '音效關閉'); if (on) Sound.beep(1); }
 const activeTimers = () => MODULES.filter(m => m.id !== 'exam' && m.running());
@@ -1314,7 +1340,7 @@ function route() {
   if (current === 'home') { bb.href = SITE; bb.target = '_top'; bb.textContent = '‹ YuSiangTOOL'; bb.title = '回到 YuSiangTOOL 主頁'; }
   else { bb.href = '#'; bb.removeAttribute('target'); bb.textContent = '‹ 全部'; bb.title = '回到計時器列表'; } $('#setBtn').hidden = current === 'settings';
   $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : current === 'settings' ? '⚙️ 設定' : '';
-  paintSound(); $('#newTabBtn').href = location.href;
+  paintSound(); paintPin(); $('#newTabBtn').href = location.href;
   if (m) m.render(); window.scrollTo(0, 0);
 }
 let lastTitle = '';
