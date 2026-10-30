@@ -182,6 +182,28 @@ table.log .num{text-align:right;font-variant-numeric:tabular-nums}
 .speech-hero[data-light="idle"] .phase{color:var(--muted)}
 .laps{max-width:420px;margin:0 auto}
 
+/* 遊戲 */
+.pad{user-select:none;-webkit-user-select:none;touch-action:manipulation;cursor:pointer;min-height:min(50vh,400px);border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:var(--surface);border:2px solid var(--line);margin-bottom:12px;text-align:center;padding:16px;box-shadow:var(--shadow)}
+.pad b{font-size:clamp(34px,9vw,64px);font-weight:800;line-height:1.2}
+.pad span{font-size:17px;opacity:.85}
+.pad.red{background:#c62f38;color:#fff;border-color:transparent}
+.pad.green{background:#2b8a52;color:#fff;border-color:transparent}
+.pad.blue{background:var(--info);color:#fff;border-color:transparent}
+.pad.warn{background:#e2a600;color:#1a1400;border-color:transparent}
+.pad.run{background:var(--work);color:#fff;border-color:transparent}
+.pad.beat{background:var(--accent);color:var(--accent-ink);border-color:transparent}
+.sgrid{display:grid;gap:8px;max-width:460px;margin:0 auto 14px}
+.sgrid:empty{display:none}
+.scell{aspect-ratio:1;border:1px solid var(--line);background:var(--surface);border-radius:12px;font-size:clamp(20px,6vw,32px);font-weight:800;cursor:pointer;touch-action:manipulation;user-select:none;color:var(--text)}
+.scell.done{opacity:.2}
+.scell.bad{animation:bad .35s}
+@keyframes bad{0%,60%{background:var(--danger);color:#fff}}
+.bomb{font-size:clamp(100px,28vw,180px);line-height:1.15;display:inline-block}
+.bomb.tick{animation:tick .18s}
+@keyframes tick{30%{transform:scale(1.08) rotate(-6deg)}70%{transform:scale(1.04) rotate(5deg)}}
+.hero.boom{background:#c62f38;border-color:transparent}
+.hero.boom .phase,.hero.boom .sub{color:#fff}
+
 /* 其他 */
 .toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--text);color:var(--bg);padding:12px 20px;border-radius:12px;font-weight:700;opacity:0;pointer-events:none;transition:all .25s;z-index:60;max-width:calc(100% - 32px);text-align:center}
 .toast.show{opacity:1;transform:translate(-50%,0)}
@@ -254,6 +276,12 @@ const Sound = {
   ready() { if (!this.on) return false; this.unlock(); return !!this.ctx; },
   beep(n = 1, f = 880, d = 0.14, gap = 0.1) { if (!this.ready()) return; let t = this.ctx.currentTime + 0.02; for (let i = 0; i < n; i++) { this.tone(f, d, 'sine', t, 0.35); t += d + gap; } },
   bell(n = 1) { if (!this.ready()) return; let t = this.ctx.currentTime + 0.02; for (let i = 0; i < n; i++) { this.tone(1320, 0.9, 'triangle', t, 0.45); this.tone(2640, 0.5, 'sine', t, 0.12); t += 0.38; } },
+  boom() {
+    if (!this.ready()) return; const c = this.ctx, t = c.currentTime + 0.02, len = Math.floor(c.sampleRate * 0.9), buf = c.createBuffer(1, len, c.sampleRate), d = buf.getChannelData(0);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, 2);
+    const src = c.createBufferSource(), f = c.createBiquadFilter(), g = c.createGain(); src.buffer = buf; f.type = 'lowpass'; f.frequency.value = 900; g.gain.value = 0.9;
+    src.connect(f); f.connect(g); g.connect(c.destination); src.start(t); this.tone(70, 0.6, 'sine', t, 0.6);
+  },
   soft(f = 440) { if (!this.ready()) return; this.tone(f, 0.6, 'sine', this.ctx.currentTime + 0.02, 0.18); }
 };
 document.addEventListener('pointerdown', () => Sound.unlock());
@@ -855,9 +883,211 @@ const sw = {
   render() { const k = this.k, ms = this.clock.ms; T(k.big, cs(ms)); T(k.tg, this.clock.on ? '暫停' : ms ? '繼續' : '開始'); T(k.lap, this.clock.on || !ms ? '分圈' : '重設'); k.lap.disabled = !ms; }
 };
 
+/* ========== 遊戲挑戰 ========== */
+function stopGame(o) {
+  return {
+    id: o.id, name: o.name, icon: o.icon, cat: '遊戲挑戰', desc: o.desc,
+    html: `
+    <div class="card hero"><div class="phase" data-k="phase"></div><div class="big mono" data-k="big"></div><div class="sub" data-k="sub"></div></div>
+    <div class="row"><button class="btn primary xl" data-act="go" data-k="go">開始</button></div>
+    <div class="chips center cfg" data-k="cfg">${o.targets.map(v => `<button class="chip" data-act="t" data-v="${v}">${v} 秒</button>`).join('')}</div>
+    <p class="hint" data-k="best"></p>`,
+    init(el) { this.el = el; this.k = keys(el); this.target = store.get(o.id + 'T', o.targets[1]); this.clock = new Clock(); this.res = null; onAct(el, (a, b) => this.act(a, b)); },
+    running() { return false; }, toggle() { this.act('go'); }, logic() {}, title() { return null; },
+    act(a, b) {
+      if (a === 't') { if (this.clock.on) return; this.target = +b.dataset.v; store.set(o.id + 'T', this.target); this.res = null; }
+      else if (this.clock.on) {
+        this.clock.pause(); const ms = this.clock.ms, d = ms - this.target * 1000, key = 'best:' + o.id + this.target, bst = store.get(key, null);
+        this.res = { ms, d, rec: bst === null || Math.abs(d) < Math.abs(bst) }; if (this.res.rec) store.set(key, d); Sound.beep(1, 880);
+      } else { this.res = null; this.clock.reset(); this.clock.play(); Sound.beep(1, 660); }
+      this.render();
+    },
+    render() {
+      const k = this.k, on = this.clock.on, r = this.res, t = this.target, th = o.th;
+      k.cfg.hidden = on; T(k.go, on ? '停！' : r ? '再玩一次' : '開始');
+      if (on) { T(k.phase, o.hide ? `在心裡數到 ${t} 秒…` : `剛好在 ${t}.00 秒按停！`); T(k.big, o.hide ? '? ? ?' : (this.clock.ms / 1000).toFixed(2)); T(k.sub, '按「停」或空白鍵'); }
+      else if (r) {
+        const a = Math.abs(r.d) / 1000;
+        T(k.phase, a < th[0] ? '神準！🎯' : a < th[1] ? '很準！👏' : a < th[2] ? '不錯喔' : '再試試看');
+        T(k.big, (r.ms / 1000).toFixed(2)); T(k.sub, `目標 ${t} 秒，${r.d >= 0 ? '慢了' : '快了'} ${a.toFixed(2)} 秒` + (r.rec ? '・新紀錄！' : ''));
+      } else { T(k.phase, `目標：${t} 秒`); T(k.big, '0.00'); T(k.sub, o.hide ? '開始後看不到時間，憑感覺按停' : '碼錶會一直跑，抓準時機按停'); }
+      const bst = store.get('best:' + o.id + t, null); T(k.best, bst === null ? '' : `${t} 秒最佳：誤差 ${(Math.abs(bst) / 1000).toFixed(2)} 秒`);
+      $$('[data-act="t"]', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === t));
+    }
+  };
+}
+const guess = stopGame({ id: 'guess', name: '猜秒數', icon: '🙈', desc: '看不到時間，憑感覺在目標秒數按停，看誰最準', targets: [5, 10, 30, 60], hide: true, th: [0.1, 0.3, 1] });
+const stopAt = stopGame({ id: 'stopat', name: '精準停錶', icon: '🎯', desc: '碼錶飛快地跑，挑戰剛好停在 5.00 秒', targets: [3, 5, 10], hide: false, th: [0.015, 0.05, 0.15] });
+
+const react = {
+  id: 'reaction', name: '反應力測驗', icon: '⚡', cat: '遊戲挑戰', desc: '畫面變綠立刻點，測出你的反應時間',
+  html: `<div class="pad" data-k="pad"><b data-k="t1"></b><span data-k="t2"></span></div><p class="hint" data-k="info"></p>`,
+  init(el) { this.el = el; this.k = keys(el); this.st = 'idle'; this.hist = []; this.k.pad.addEventListener('pointerdown', e => { e.preventDefault(); this.tap(); }); this.paint(); },
+  tap() {
+    const s = this.st;
+    if (s === 'wait') { clearTimeout(this.to); this.st = 'early'; Sound.beep(1, 220, 0.25); }
+    else if (s === 'go') {
+      const ms = Math.round(performance.now() - this.t0), b = store.get('best:react', null);
+      this.last = ms; this.hist.push(ms); if (this.hist.length > 5) this.hist.shift();
+      this.rec = b === null || ms < b; if (this.rec) store.set('best:react', ms); this.st = 'result';
+    } else { this.st = 'wait'; clearTimeout(this.to); this.to = setTimeout(() => { this.st = 'go'; this.t0 = performance.now(); this.paint(); }, 1500 + Math.random() * 3000); }
+    this.paint();
+  },
+  paint() {
+    const k = this.k, s = this.st;
+    k.pad.className = 'pad ' + ({ wait: 'red', go: 'green', early: 'warn', result: 'blue' }[s] || '');
+    const m = { idle: ['點這裡開始', '畫面變成綠色時，越快點越好'], wait: ['等綠色…', '還沒，別急'], go: ['點！', ''], early: ['太早了！', '點一下重來'],
+      result: [`${this.last} 毫秒`, (this.rec ? '新紀錄！' : this.last < 250 ? '超快！' : this.last < 350 ? '不錯！' : '再接再厲') + '・點一下再來'] }[s];
+    T(k.t1, m[0]); T(k.t2, m[1]);
+    const b = store.get('best:react', null), avg = this.hist.length ? Math.round(this.hist.reduce((a, x) => a + x, 0) / this.hist.length) : 0;
+    T(k.info, [b !== null ? `最佳 ${b} 毫秒` : '', avg ? `近 ${this.hist.length} 次平均 ${avg} 毫秒` : ''].filter(Boolean).join('・'));
+  },
+  running() { return false; }, toggle() { this.tap(); }, logic() {}, title() { return null; }, render() {}
+};
+
+const clicker = {
+  id: 'clicker', name: '手速連點', icon: '👆', cat: '遊戲挑戰', desc: '限時內瘋狂點擊，看每秒能點幾下',
+  html: `<div class="pad" data-k="pad"><b class="mono" data-k="t1"></b><span data-k="t2"></span></div>
+  <div class="chips center cfg" data-k="cfg">${[5, 10, 30].map(v => `<button class="chip" data-act="d" data-v="${v}">${v} 秒</button>`).join('')}</div><p class="hint" data-k="info"></p>`,
+  init(el) {
+    this.el = el; this.k = keys(el); this.dur = store.get('clickD', 10); this.clock = new Clock(); this.st = 'idle'; this.n = 0; this.lock = 0;
+    this.k.pad.addEventListener('pointerdown', e => { e.preventDefault(); this.tap(); });
+    onAct(el, (a, b) => { if (this.st === 'run') return; this.dur = +b.dataset.v; store.set('clickD', this.dur); this.st = 'idle'; this.render(); });
+  },
+  tap() { if (Date.now() < this.lock) return; if (this.st !== 'run') { this.st = 'run'; this.n = 0; this.clock.reset(); this.clock.play(); } this.n++; },
+  running() { return false; }, toggle() { this.tap(); }, title() { return null; },
+  logic() {
+    if (this.st !== 'run' || this.clock.ms < this.dur * 1000) return;
+    this.clock.pause(); this.st = 'done'; this.lock = Date.now() + 1200;
+    const key = 'best:click' + this.dur, b = store.get(key, 0); this.rec = this.n > b; if (this.rec) store.set(key, this.n); Sound.bell(1);
+  },
+  render() {
+    const k = this.k, s = this.st; k.cfg.hidden = s === 'run';
+    const cls = 'pad' + (s === 'run' ? ' run' : s === 'done' ? ' blue' : ''); if (k.pad.className !== cls) k.pad.className = cls;
+    if (s === 'idle') { T(k.t1, '點這裡開始'); T(k.t2, `第一下開始計時，${this.dur} 秒內點越多越好`); }
+    else if (s === 'run') { T(k.t1, `${this.n} 下`); T(k.t2, `剩 ${Math.max(0, (this.dur * 1000 - this.clock.ms) / 1000).toFixed(1)} 秒`); }
+    else { T(k.t1, `${this.n} 下`); T(k.t2, `每秒 ${(this.n / this.dur).toFixed(1)} 下` + (this.rec ? '・新紀錄！' : '') + '・點一下再來'); }
+    const b = store.get('best:click' + this.dur, 0); T(k.info, b ? `${this.dur} 秒最佳：${b} 下` : '');
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.dur));
+  }
+};
+
+const rhythm = {
+  id: 'rhythm', name: '節拍感', icon: '🥁', cat: '遊戲挑戰', desc: '先聽 4 拍，再靠自己穩穩點 8 下，測你的節奏感',
+  html: `<div class="pad" data-k="pad"><b data-k="t1"></b><span data-k="t2"></span></div>
+  <div class="chips center cfg" data-k="cfg">${[60, 90, 120].map(v => `<button class="chip" data-act="bpm" data-v="${v}">每分鐘 ${v} 拍</button>`).join('')}</div><p class="hint" data-k="info"></p>`,
+  init(el) {
+    this.el = el; this.k = keys(el); this.bpm = store.get('rhyBpm', 90); this.st = 'idle'; this.lock = 0;
+    this.k.pad.addEventListener('pointerdown', e => { e.preventDefault(); this.tap(); });
+    onAct(el, (a, b) => { if (this.st === 'play') return; this.bpm = +b.dataset.v; store.set('rhyBpm', this.bpm); this.st = 'idle'; this.render(); });
+  },
+  tap() {
+    const now = performance.now(); if (now < this.lock) return;
+    if (this.st !== 'play') {
+      this.P = 60000 / this.bpm; this.t0 = now + 600; this.taps = []; this.st = 'play';
+      if (Sound.ready()) { const base = Sound.ctx.currentTime + 0.6; for (let i = 0; i < 4; i++) Sound.tone(i ? 880 : 1175, 0.07, 'sine', base + i * this.P / 1000, 0.4); }
+      return;
+    }
+    if (now < this.t0 + 3.5 * this.P) return;
+    this.taps.push(now); this.flashT = now;
+    if (this.taps.length === 8) this.finish();
+  },
+  finish() {
+    const P = this.P; let prev = this.t0 + 3 * P;
+    const ints = this.taps.map(t => { const d = t - prev; prev = t; return d; }), mean = a => a.reduce((x, y) => x + y, 0) / a.length;
+    this.dev = Math.round(mean(ints.map(d => Math.abs(d - P)))); this.realBpm = Math.round(60000 / mean(ints));
+    const f = mean(ints.slice(0, 4)), l = mean(ints.slice(4)); this.trend = l < f - P * 0.04 ? '越點越快' : l > f + P * 0.04 ? '越點越慢' : '速度很穩';
+    const key = 'best:rhy' + this.bpm, b = store.get(key, null); this.rec = b === null || this.dev < b; if (this.rec) store.set(key, this.dev);
+    this.st = 'done'; this.lock = performance.now() + 1000; Sound.bell(1);
+  },
+  running() { return false; }, toggle() { this.tap(); }, title() { return null; },
+  logic() { if (this.st === 'play' && performance.now() > this.t0 + 16 * this.P) { this.st = 'idle'; toast('太久沒點，重新開始吧'); } },
+  render() {
+    const k = this.k, s = this.st, now = performance.now(); k.cfg.hidden = s === 'play'; let cls = 'pad';
+    if (s === 'idle') { T(k.t1, '點這裡開始'); T(k.t2, '先聽 4 拍，從第 5 拍起換你繼續點 8 下'); }
+    else if (s === 'play') {
+      const e = now - this.t0;
+      if (e < 0) { T(k.t1, '準備'); T(k.t2, '仔細聽節拍'); }
+      else if (e < 3.5 * this.P) { T(k.t1, String(Math.floor(e / this.P) + 1)); T(k.t2, '仔細聽…'); if (e % this.P < 120) cls += ' beat'; }
+      else { T(k.t1, `${this.taps.length} / 8`); T(k.t2, '換你！照同樣的速度點'); if (this.flashT && now - this.flashT < 90) cls += ' beat'; }
+    } else {
+      cls += ' blue'; T(k.t1, `誤差 ${this.dev} 毫秒`);
+      T(k.t2, `${this.dev < 25 ? '專業鼓手等級 🥁' : this.dev < 50 ? '很穩！' : this.dev < 100 ? '還不錯' : '多練習幾次'}・${this.trend}（約 ${this.realBpm} 拍／分）` + (this.rec ? '・新紀錄！' : ''));
+    }
+    if (k.pad.className !== cls) k.pad.className = cls;
+    const b = store.get('best:rhy' + this.bpm, null); T(k.info, b !== null ? `${this.bpm} 拍最佳：誤差 ${b} 毫秒` : '');
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.bpm));
+  }
+};
+
+const schulte = {
+  id: 'schulte', name: '數字方格', icon: '🔢', cat: '遊戲挑戰', desc: '依序點 1、2、3…，訓練專注力與眼力（舒爾特方格）',
+  html: `<div class="card hero"><div class="phase" data-k="phase"></div><div class="big mono" data-k="big" style="font-size:clamp(48px,12vw,84px)"></div></div>
+  <div class="sgrid" data-k="grid"></div>
+  <div class="row"><button class="btn primary xl" data-act="go" data-k="go">開始</button></div>
+  <div class="chips center cfg" data-k="cfg">${[3, 4, 5].map(n => `<button class="chip" data-act="n" data-v="${n}">${n}×${n}</button>`).join('')}</div><p class="hint" data-k="info"></p>`,
+  init(el) {
+    this.el = el; this.k = keys(el); this.n = store.get('schN', 5); this.clock = new Clock(); this.st = 'idle';
+    onAct(el, (a, b) => { if (a === 'n') { if (this.st === 'run') return; this.n = +b.dataset.v; store.set('schN', this.n); this.st = 'idle'; this.clock.reset(); this.k.grid.innerHTML = ''; } else this.start(); this.render(); });
+    this.k.grid.addEventListener('pointerdown', e => { const c = e.target.closest('[data-num]'); if (!c || this.st !== 'run') return; e.preventDefault(); this.hit(c); });
+  },
+  start() {
+    const N = this.n * this.n, a = Array.from({ length: N }, (_, i) => i + 1);
+    for (let i = N - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+    this.k.grid.style.gridTemplateColumns = `repeat(${this.n},1fr)`;
+    this.k.grid.innerHTML = a.map(v => `<button class="scell" data-num="${v}">${v}</button>`).join('');
+    this.next = 1; this.st = 'run'; this.clock.reset(); this.clock.play(); Sound.beep(1, 880, 0.08);
+  },
+  hit(c) {
+    if (+c.dataset.num === this.next) {
+      c.classList.add('done'); this.next++; Sound.beep(1, 1200, 0.03);
+      if (this.next > this.n * this.n) {
+        this.clock.pause(); this.st = 'done';
+        const key = 'best:sch' + this.n, b = store.get(key, null); this.rec = b === null || this.clock.ms < b; if (this.rec) store.set(key, this.clock.ms); Sound.bell(1);
+      }
+    } else { c.classList.remove('bad'); void c.offsetWidth; c.classList.add('bad'); Sound.beep(1, 200, 0.12); }
+  },
+  running() { return false; }, toggle() { if (this.st !== 'run') { this.start(); this.render(); } }, logic() {}, title() { return null; },
+  render() {
+    const k = this.k, s = this.st; k.cfg.hidden = s === 'run';
+    T(k.go, s === 'run' ? '重新開始' : s === 'done' ? '再玩一次' : '開始'); T(k.big, cs(this.clock.ms));
+    T(k.phase, s === 'run' ? `找 ${this.next}` : s === 'done' ? (this.rec ? '完成！新紀錄 🎉' : '完成！') : `${this.n}×${this.n}：依序點 1 → ${this.n * this.n}`);
+    const b = store.get('best:sch' + this.n, null); T(k.info, b !== null ? `${this.n}×${this.n} 最佳：${cs(b)}` : '');
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', +c.dataset.v === this.n));
+  }
+};
+
+const bomb = {
+  id: 'bomb', name: '傳炸彈', icon: '💣', cat: '遊戲挑戰', desc: '課堂傳物遊戲：滴答聲越來越快，隨機時間爆炸',
+  html: `<div class="card hero" data-k="hero"><div class="bomb" data-k="bomb">💣</div><div class="phase" data-k="phase"></div><div class="sub" data-k="sub"></div></div>
+  <div class="row"><button class="btn primary xl" data-act="go" data-k="go">開始</button></div>
+  <div class="chips center cfg" data-k="cfg">${[['短', 10, 20], ['中', 20, 40], ['長', 40, 80]].map(p => `<button class="chip" data-act="len" data-v="${p[1]},${p[2]}">${p[0]}（${p[1]}–${p[2]} 秒）</button>`).join('')}</div>`,
+  init(el) { this.el = el; this.k = keys(el); this.rng = store.get('bombR', [20, 40]); this.clock = new Clock(); this.st = 'idle'; onAct(el, (a, b) => this.act(a, b)); },
+  act(a, b) {
+    if (a === 'len') { if (this.st === 'run') return; this.rng = b.dataset.v.split(',').map(Number); store.set('bombR', this.rng); this.st = 'idle'; }
+    else if (this.st === 'run') { if (!this.clock.on) this.clock.play(); else { this.clock.reset(); this.st = 'idle'; } }
+    else { this.dur = (this.rng[0] + Math.random() * (this.rng[1] - this.rng[0])) * 1000; this.clock.reset(); this.clock.play(); this.lastTick = -1e9; this.st = 'run'; }
+    this.render();
+  },
+  running() { return this.clock.on; }, toggle() { this.act('go'); }, title() { return this.st === 'run' ? '💣' : null; },
+  logic() {
+    if (this.st !== 'run' || !this.clock.on) return; const ms = this.clock.ms;
+    if (ms >= this.dur) { this.clock.pause(); this.st = 'boom'; Sound.boom(); flash(); try { navigator.vibrate && navigator.vibrate([400, 100, 400]); } catch (e) {} return; }
+    if (ms - this.lastTick >= 900 - 650 * (ms / this.dur)) { this.lastTick = ms; Sound.beep(1, 1500, 0.03); const b = this.k.bomb; b.classList.remove('tick'); void b.offsetWidth; b.classList.add('tick'); }
+  },
+  render() {
+    const k = this.k, s = this.st;
+    k.cfg.hidden = s === 'run'; k.hero.classList.toggle('boom', s === 'boom');
+    T(k.bomb, s === 'boom' ? '💥' : '💣'); T(k.go, s === 'run' ? (this.clock.on ? '停止' : '繼續') : s === 'boom' ? '再玩一次' : '開始');
+    T(k.phase, s === 'run' ? (this.clock.on ? '快傳下去！' : '暫停中') : s === 'boom' ? '爆炸了！' : '準備好了嗎？');
+    T(k.sub, s === 'boom' ? '拿著的人接受挑戰（回答問題、表演…）' : s === 'run' ? '聽滴答聲，炸彈隨時會爆' : '開始後把物品傳給下一位，爆炸時拿著的人接受挑戰');
+    $$('.chip', this.el).forEach(c => c.classList.toggle('on', c.dataset.v === this.rng.join(',')));
+  }
+};
+
 /* ========== 首頁、路由、主迴圈 ========== */
-const MODULES = [gym, hiit, pomo, breath, teach, cd, speech, exam, kitchen, chess, sw];
-const CATS = ['運動健身', '學習專注', '教學課堂', '生活娛樂', '通用工具'];
+const MODULES = [guess, stopAt, react, clicker, rhythm, schulte, bomb, gym, hiit, pomo, breath, teach, cd, speech, exam, kitchen, chess, sw];
+const CATS = ['遊戲挑戰', '運動健身', '學習專注', '教學課堂', '生活娛樂', '通用工具'];
 let current = 'home';
 const SITE = 'https://tool.yu-siang.com/';
 function setup() {
@@ -877,7 +1107,7 @@ function setup() {
   document.addEventListener('keydown', e => {
     if (e.target.closest('input,textarea,select') || e.ctrlKey || e.metaKey || e.altKey || $('.modal')) return;
     const m = MODULES.find(x => x.id === current); if (!m) return;
-    if (e.code === 'Space') { e.preventDefault(); m.toggle && m.toggle(); }
+    if (e.code === 'Space') { e.preventDefault(); if (!e.repeat && m.toggle) m.toggle(); }
     else if (e.key === 'f' || e.key === 'F') toggleFs();
     else if (m.key && m.key(e)) e.preventDefault();
   });
@@ -927,7 +1157,7 @@ function route() {
   const bb = $('#backBtn');
   if (current === 'home') { bb.href = SITE; bb.target = '_top'; bb.textContent = '‹ YuSiangTOOL'; bb.title = '回到 YuSiangTOOL 主頁'; }
   else { bb.href = '#'; bb.removeAttribute('target'); bb.textContent = '‹ 全部'; bb.title = '回到計時器列表'; } $('#setBtn').hidden = current === 'settings';
-  $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : current === 'settings' ? '⚙️ 設定' : 'YSTimer 計時器';
+  $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : current === 'settings' ? '⚙️ 設定' : '';
   paintSound(); $('#newTabBtn').href = location.href;
   if (m) m.render(); window.scrollTo(0, 0);
 }
