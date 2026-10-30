@@ -201,11 +201,12 @@ body.flash::after{content:"";position:fixed;inset:0;background:var(--accent);poi
 </head>
 <body>
 <header class="topbar">
-  <a class="back" id="backBtn" href="#" hidden>‹ 全部</a>
+  <a class="back" id="backBtn" href="#">‹ 全部</a>
   <h1 id="pageTitle">YSTimer 計時器</h1>
   <button class="btn sm" id="pauseAllBtn" title="暫停所有計時器" hidden>⏸ 全部暫停</button>
   <button class="iconbtn" id="soundBtn" title="音效開關">🔔</button>
   <a class="iconbtn" id="setBtn" href="#settings" title="設定">⚙️</a>
+  <a class="iconbtn" id="siteBtn" href="https://tool.yu-siang.com/" target="_top" title="回到 YuSiangTOOL 主頁">🏠</a>
   <button class="iconbtn" id="fsBtn" title="全螢幕（F）">⛶</button>
   <a class="iconbtn" id="newTabBtn" target="_blank" rel="noopener" title="在新分頁開啟" hidden>↗</a>
 </header>
@@ -858,6 +859,7 @@ const sw = {
 const MODULES = [gym, hiit, pomo, breath, teach, cd, speech, exam, kitchen, chess, sw];
 const CATS = ['運動健身', '學習專注', '教學課堂', '生活娛樂', '通用工具'];
 let current = 'home';
+const SITE = 'https://tool.yu-siang.com/';
 function setup() {
   $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。計時器會在背景繼續跑，卡片右上角顯示進行中的時間。</p></div>` +
     CATS.map(c => `<div class="cat">${c}</div><div class="grid">${MODULES.filter(m => m.cat === c).map(m =>
@@ -898,6 +900,7 @@ function buildSettings() {
   <div class="card"><h3 style="margin-bottom:6px">直接開啟指定計時器</h3>
     <p class="hint" style="text-align:left;margin:0 0 8px">網址後面加上代碼，就會直接打開那個計時器，適合在協作平台為每個計時器各放一個按鈕。</p>
     <table class="log">${MODULES.map(m => `<tr><td>${m.icon} ${m.name}</td><td><code>#${m.id}</code></td><td class="num"><button class="btn sm" data-copy="${esc(base + '#' + m.id)}">複製網址</button></td></tr>`).join('')}</table></div>
+  <div class="card"><div class="card-head" style="margin:0"><h3>回到主頁</h3><a class="btn sm" href="${SITE}" target="_top" style="text-decoration:none;display:inline-flex;align-items:center">🏠 YuSiangTOOL</a></div></div>
   <div class="card"><h3 style="margin-bottom:6px">快捷鍵</h3>
     <table class="log"><tr><td><code>空白鍵</code></td><td>開始／暫停（重訓：開始／休息／下一組）</td></tr><tr><td><code>F</code></td><td>全螢幕（投影時好用）</td></tr><tr><td><code>← →</code></td><td>試教計時器切換步驟</td></tr></table></div>
   <div class="card"><div class="card-head" style="margin:0"><h3>資料</h3><button class="btn sm danger" id="setClear">清除所有設定與紀錄</button></div>
@@ -921,7 +924,9 @@ function toggleFs() {
 function route() {
   const id = location.hash.slice(1), m = MODULES.find(x => x.id === id); current = m ? m.id : id === 'settings' ? 'settings' : 'home';
   $$('.view').forEach(v => v.hidden = v.id !== 'v-' + current);
-  $('#backBtn').hidden = current === 'home'; $('#setBtn').hidden = current === 'settings';
+  const bb = $('#backBtn');
+  if (current === 'home') { bb.href = SITE; bb.target = '_top'; bb.textContent = '‹ YuSiangTOOL'; bb.title = '回到 YuSiangTOOL 主頁'; }
+  else { bb.href = '#'; bb.removeAttribute('target'); bb.textContent = '‹ 全部'; bb.title = '回到計時器列表'; } $('#setBtn').hidden = current === 'settings';
   $('#pageTitle').textContent = m ? `${m.icon} ${m.name}` : current === 'settings' ? '⚙️ 設定' : 'YSTimer 計時器';
   paintSound(); $('#newTabBtn').href = location.href;
   if (m) m.render(); window.scrollTo(0, 0);
