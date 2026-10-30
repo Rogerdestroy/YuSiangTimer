@@ -1287,7 +1287,7 @@ function renderHome() {
   const pinned = pins.map(id => MODULES.find(m => m.id === id));
   $('#v-home').innerHTML = `<div class="intro"><h2>YSTimer 計時器</h2><p>選一個計時器開始。點卡片右下角的 📌 可以把常用的置頂。</p></div>` +
     (pinned.length ? `<div class="cat">📌 置頂</div><div class="grid">${pinned.map(card).join('')}</div>` : '') +
-    CATS.map(c => { const ms = MODULES.filter(m => m.cat === c && !pins.includes(m.id)); return ms.length ? `<div class="cat">${c}</div><div class="grid">${ms.map(card).join('')}</div>` : ''; }).join('');
+    CATS.map(c => { const ms = MODULES.filter(m => m.cat === c); return ms.length ? `<div class="cat">${c}</div><div class="grid">${ms.map(card).join('')}</div>` : ''; }).join('');
 }
 function togglePin(id) {
   const m = MODULES.find(x => x.id === id); if (!m) return;
@@ -1348,7 +1348,7 @@ function loop() {
   for (const m of MODULES) { try { m.logic(); } catch (e) { console.error(m.id, e); } }
   const m = MODULES.find(x => x.id === current);
   if (m) { try { m.render(); } catch (e) { console.error(m.id, e); } }
-  else if (current === 'home') MODULES.forEach(x => T($(`[data-live="${x.id}"]`), x.running() && x.id !== 'exam' ? (x.title() || '進行中') : ''));
+  else if (current === 'home') MODULES.forEach(x => { const v = x.running() && x.id !== 'exam' ? (x.title() || '進行中') : ''; $$(`[data-live="${x.id}"]`).forEach(el => T(el, v)); });
   const pb = $('#pauseAllBtn'), any = activeTimers().length > 0; if (pb.hidden === any) pb.hidden = !any;
   const t = m && m.title() ? `${m.title()} · ${m.name}` : (m ? m.name : 'YSTimer 計時器');
   if (t !== lastTitle) document.title = lastTitle = t;
